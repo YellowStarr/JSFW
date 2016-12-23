@@ -22,7 +22,7 @@ class raiseQuestion:
         Mytool.findClass(dr,"sc-matter").click()
         time.sleep(2)
         cur_url=dr.current_url
-        assert expect_url==cur_url,"url wrong"
+        # assert expect_url==cur_url,"url wrong"
        # Mytool.findClass(dr,"s_btn_logins").click()
         dr.implicitly_wait(10)
         self.questionDetail("2")
@@ -31,24 +31,32 @@ class raiseQuestion:
         self.stepOp(2)
         self.payPage()
 
-    def findExpert(self,expnum=1):
+    def findExpert(self,expnum=1,questionType=1):
         """找专家入口流程"""  
         expect_url='http://192.168.11.181:8080/JSFW/findexps/findexp.do'
         dr=self.driver
         Mytool.findCss(dr,"div.sc_login_after>a").click()
         time.sleep(2)
         cur_url=dr.current_url
-        assert expect_url==cur_url,"url wrong"
+        # assert expect_url==cur_url,"url wrong"
         time.sleep(4)
+        if questionType==2:
+            Mytool.selectList(dr,'findexps_typeid',"//*[@id='findexps_typeid']/option[2]")
+            stepList=Mytool.findClasses(dr,'lastStep')
+            for att in stepList:
+                if att.get_attribute("onclick")=="search_exp()":
+                    att.send_keys(Keys.ENTER)
+                    time.sleep(2)
         self.expertChoose(expnum)#选专家
+        # self.Query(u'陈明宇')
         Mytool.scroll(dr,2000)
         self.stepOp(2)#下一步
         time.sleep(1)
-        Mytool.findId(dr,'pro_detail',u'截止日期测试')#问题描述
+        Mytool.findId(dr,'pro_detail',u'比例佣金测试')#问题描述
         Mytool.scroll(dr,2000)
         time.sleep(2)
         self.stepOp(4)#下一步
-        self.payPage("E",1,3)#支付
+        self.payPage("E",1,1)#支付
 
 
 #注册页面  Undone
@@ -95,6 +103,17 @@ class raiseQuestion:
             for j in range(0,k):
                 reqList[j].click()
         Mytool.findId(dr,'pro_detail',u'计算')
+
+    def Query(self,uname):
+        dr=self.driver
+        Mytool.findId(dr,'exp_cname').send_keys(uname)
+        stepList=Mytool.findClasses(dr,'lastStep')
+        for att in stepList:
+            if att.get_attribute("onclick")=="search_exp()":
+                att.send_keys(Keys.ENTER)
+                Mytool.findLink(dr,u"选择").send_keys(Keys.ENTER)
+
+        
 
     def expertChoose(self,num=1):
         u"""选择专家 num represent how many experts you want to choose"""

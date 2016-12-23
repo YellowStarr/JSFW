@@ -23,7 +23,7 @@ class test(unittest.TestCase):
         sys.setdefaultencoding('utf-8')
         self.driver = webdriver.Chrome()
         self.driver.implicitly_wait(30)
-        self.base_url = "http://218.249.25.106:15301/"
+        self.base_url = "http://218.249.25.106:15301/JSFW"
         self.verificationErrors = []
         self.accept_next_alert = True
         #self.f=open("f:/workspace/python/data.txt","w")
@@ -48,13 +48,36 @@ class test(unittest.TestCase):
         u"""技术服务找专家测试"""
         driver = self.driver
         driver.delete_all_cookies()
-        Mytool.readExec("F:\\WorkSpace\\python\\JSFW\\testcase.csv")
+        # Mytool.readExec("F:\\WorkSpace\\python\\JSFW\\testcase.csv")
         driver.get(self.base_url + "/home/unlogin.do")
         li=Login(driver)
         li.Login("qiuwjn2",888888)  
         time.sleep(3) 
         RQ=raiseQuestion(driver)
-        RQ.findExpert(2)
+        RQ.findExpert(1,2)
+
+    def test_Money(self):
+        u'''资金测试'''
+        driver = self.driver
+        driver.delete_all_cookies()
+        driver.get(self.base_url + "/home/unlogin.do")
+        li=Login(driver)
+        li.Login("qiuwjn2",888888)  
+        time.sleep(3) 
+
+        RQ=raiseQuestion(driver)
+        RQ.findExpert()
+        
+
+        # try:self.assertEqual(u"完成",Mytool.getDict("state"))
+        # except AssertionError as e: self.verificationErrors.append(str(e))
+        # try:self.assertEqual("2016-12-15",Mytool.getDict("deadTime"))
+        # except AssertionError as e: self.verificationErrors.append(str(e))
+        # try:self.assertEqual("600",Mytool.getDict("cost"),"cost wrong")
+        # except AssertionError as e: 
+        #     self.verificationErrors.append(str(e))
+
+
 
     def test_DeadTime(self):
         u'''截止日期测试'''
@@ -65,7 +88,7 @@ class test(unittest.TestCase):
         li.Login("qiuwjn2",888888)  
         time.sleep(3) 
         p=Person(driver)
-        p.AnswerQuestion("jszx20161215101513")
+        p.AnswerQuestion("jszx20161221172109")
         try:self.assertEqual(u"完成",Mytool.getDict("state"))
         except AssertionError as e: self.verificationErrors.append(str(e))
         try:self.assertEqual("2016-12-15",Mytool.getDict("deadTime"))
