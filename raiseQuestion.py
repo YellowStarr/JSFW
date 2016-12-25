@@ -57,7 +57,8 @@ class raiseQuestion:
         time.sleep(2)
         self.stepOp(4)#下一步
         self.payPage("E",1,1)#支付
-
+        time.sleep(2)
+        print "question_No is:%s"%self.getQuestionNo()
 
 #注册页面  Undone
     def Register(self):
@@ -127,8 +128,18 @@ class raiseQuestion:
                 expList[i].click()
         else:
             raise IndexError,IndexError('num is out of range')
-
-        
+    
+    def chosedExp(self):
+        dr=self.driver
+        choseExpList=[]
+        Mytool.findId(dr,"selected_exp").click()
+        nameList=Mytool.findXpathes(dr,"//*[@id='chioces_exp']/*/*/*/a[1]")
+        chargeList=Mytool.findXpathes(dr,"//input[@class='moneyValue']")
+        for i in range(nameList.length):
+            choseExpDic['name']=nameList[i].text
+            choseExpDic['charge']=chargeList[i].get_attribute('value')
+            choseExpList.append(choseExpDic)
+        return choseExpList
 
 
 #上传图片
@@ -146,7 +157,8 @@ class raiseQuestion:
 #Trade information
 
     def payPage(self,flag="Q",n=1,t=0):
-        u"""flag:Q represent FIND_QUESTION;E represent FIND_EXPERT
+        u"""
+        flag:Q represent FIND_QUESTION;E represent FIND_EXPERT
         n:expect N experts to answer
         t:expectation of the final answer day
         """
@@ -175,7 +187,13 @@ class raiseQuestion:
             Mytool.findClass(dr,"s_ok").click()
         else:
             raise AssertionError,AssertionError("failed paying")
-      
+    
+    def getQuestionNo(self):
+        dr=self.driver
+        xpath="//*[@id='all']/tbody/tr[1]/td[1]"
+        no=Mytool.findXpath(dr,xpath)
+        return no
+
     def getTotalprice(self):
         '''return the expert cost add on the fee'''
         listAmount=Mytool.getDict("listAmount")

@@ -81,6 +81,7 @@ class Person:
         Mytool.setDict("dj",djmoney)
 
     def AnswerQuestion(self,No):
+        u"""专家回复问题"""
         dr=self.driver
         Mytool.findLink(dr,u"我的问题").click()
         time.sleep(2)
