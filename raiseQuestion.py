@@ -47,7 +47,8 @@ class raiseQuestion:
                 if att.get_attribute("onclick")=="search_exp()":
                     att.send_keys(Keys.ENTER)
                     time.sleep(2)
-        self.expertChoose(expnum)#选专家
+        expIdList=self.expertChoose(expnum)#选专家
+        expDict=self.chosedExp()
         # self.Query(u'陈明宇')
         Mytool.scroll(dr,2000)
         self.stepOp(2)#下一步
@@ -58,7 +59,15 @@ class raiseQuestion:
         self.stepOp(4)#下一步
         self.payPage("E",answerNum,answerDay)#支付
         time.sleep(2)
-        print "question_No is:%s"%self.getQuestionNo()
+        questNo=self.getQuestionNo()
+
+        Mytool.saveExc('testcase.csv','questionNo',questNo)
+        for ids in range(len(expIdList):
+            Mytool.saveExc('testcase.csv','expid',ids)
+        for i in range(len(expDict):
+            for k in expDict[i]:
+                Mytool.saveExc('testcase.csv',k,expDict[i][k])
+
 
 #注册页面  Undone
     def Register(self):
@@ -120,16 +129,20 @@ class raiseQuestion:
         u"""选择专家 num represent how many experts you want to choose"""
         dr=self.driver
         expList=Mytool.findLinks(dr,u"选择")
+        expidList=[]
         print "length of expList:"+str(len(expList))
         if num>=1 and num<=len(expList):
             for i in range(0,num):
                 expid=expList[i].get_attribute("exp_id")
                 print "expid:"+str(expid)
                 expList[i].click()
+                expidList.append(expid)
+            return expidList
         else:
             raise IndexError,IndexError('num is out of range')
     
     def chosedExp(self):
+        u'''选中专家Tab'''
         dr=self.driver
         choseExpList=[]
         Mytool.findId(dr,"selected_exp").click()
