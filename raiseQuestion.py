@@ -31,7 +31,7 @@ class raiseQuestion:
         self.stepOp(2)
         self.payPage()
 
-    def findExpert(self,expnum=1,questionType=1):
+    def findExpert(self,detail,expnum=1,questionType=1,answerNum=1,answerDay=1):
         """找专家入口流程"""  
         expect_url='http://192.168.11.181:8080/JSFW/findexps/findexp.do'
         dr=self.driver
@@ -52,11 +52,11 @@ class raiseQuestion:
         Mytool.scroll(dr,2000)
         self.stepOp(2)#下一步
         time.sleep(1)
-        Mytool.findId(dr,'pro_detail',u'比例佣金测试')#问题描述
+        Mytool.findId(dr,'pro_detail',detail)#问题描述
         Mytool.scroll(dr,2000)
         time.sleep(2)
         self.stepOp(4)#下一步
-        self.payPage("E",1,1)#支付
+        self.payPage("E",answerNum,answerDay)#支付
         time.sleep(2)
         print "question_No is:%s"%self.getQuestionNo()
 
@@ -191,7 +191,7 @@ class raiseQuestion:
     def getQuestionNo(self):
         dr=self.driver
         xpath="//*[@id='all']/tbody/tr[1]/td[1]"
-        no=Mytool.findXpath(dr,xpath)
+        no=Mytool.findXpath(dr,xpath).text
         return no
 
     def getTotalprice(self):

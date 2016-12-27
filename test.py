@@ -51,10 +51,10 @@ class test(unittest.TestCase):
         # Mytool.readExec("F:\\WorkSpace\\python\\JSFW\\testcase.csv")
         driver.get(self.base_url + "/home/unlogin.do")
         li=Login(driver)
-        li.Login("qiuwjn2",888888)  
+        li.Login("qiuwjcom1",888888)  
         time.sleep(3) 
         RQ=raiseQuestion(driver)
-        RQ.findExpert(1,2)
+        RQ.findExpert(u'资金测试',3,1,1,0)
 
     def test_Money(self):
         u'''资金测试'''
