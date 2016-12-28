@@ -62,10 +62,13 @@ class raiseQuestion:
         questNo=self.getQuestionNo()
 
         Mytool.saveExc('testcase.csv','questionNo',questNo)
-        for ids in range(len(expIdList):
+        for ids in range(len(expIdList)):
             Mytool.saveExc('testcase.csv','expid',ids)
-        for i in range(len(expDict):
+        for i in range(len(expDict)):
+            print "expDict%s"%expDict[i]
             for k in expDict[i]:
+                print "key"+k
+                print "value"+expDict[i][k]
                 Mytool.saveExc('testcase.csv',k,expDict[i][k])
 
 
@@ -145,10 +148,13 @@ class raiseQuestion:
         u'''选中专家Tab'''
         dr=self.driver
         choseExpList=[]
+        choseExpDic={}
         Mytool.findId(dr,"selected_exp").click()
         nameList=Mytool.findXpathes(dr,"//*[@id='chioces_exp']/*/*/*/a[1]")
+        print"nameList length:%s"%len(nameList)
         chargeList=Mytool.findXpathes(dr,"//input[@class='moneyValue']")
-        for i in range(nameList.length):
+        for i in range(len(nameList)):
+            print nameList[i].text
             choseExpDic['name']=nameList[i].text
             choseExpDic['charge']=chargeList[i].get_attribute('value')
             choseExpList.append(choseExpDic)
