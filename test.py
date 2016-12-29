@@ -21,6 +21,7 @@ class test(unittest.TestCase):
     def setUp(self):
         reload(sys)
         sys.setdefaultencoding('utf-8')
+        #self.driver = webdriver.Firefox()
         self.driver = webdriver.Chrome()
         self.driver.implicitly_wait(30)
         self.base_url = "http://218.249.25.106:15301/JSFW"
@@ -54,7 +55,7 @@ class test(unittest.TestCase):
         li.Login("qiuwjcom1",888888)  
         time.sleep(3) 
         RQ=raiseQuestion(driver)
-        RQ.findExpert(u'资金测试',3,1,1,0)
+        RQ.findExpert(u'数值佣金测试case01',1,2,1,3)
 
     def test_Money(self):
         u'''资金测试'''
@@ -142,7 +143,9 @@ if __name__ == "__main__":
     #testunit.addTest(test("test_PersonCenter"))
     testunit.addTest(test("test_Exp"))
 
-    filename="f:\\WorkSpace\\python\\JSFW\\repoter.html"
-    fp=file(filename,'wb')
-    runner=HTMLTestRunner.HTMLTestRunner(stream=fp,title='testreport',description='caseRun')
+    #  filename="f:\\WorkSpace\\python\\JSFW\\repoter.html"
+    # fp=file(filename,'wb')
+    # runner=HTMLTestRunner.HTMLTestRunner(stream=fp,title='testreport',description='caseRun')
+    # runner.run(testunit)
+    runner=unittest.TextTestRunner()
     runner.run(testunit)

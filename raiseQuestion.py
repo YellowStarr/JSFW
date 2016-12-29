@@ -31,7 +31,7 @@ class raiseQuestion:
         self.stepOp(2)
         self.payPage()
 
-    def findExpert(self,detail,expnum=1,questionType=1,answerNum=1,answerDay=1):
+    def findExpert(self,expnum=1,questionType=1):
         """找专家入口流程"""  
         expect_url='http://192.168.11.181:8080/JSFW/findexps/findexp.do'
         dr=self.driver
@@ -40,36 +40,53 @@ class raiseQuestion:
         cur_url=dr.current_url
         # assert expect_url==cur_url,"url wrong"
         time.sleep(4)
-        if questionType==2:
+        if questionType==2:         #项目评价，需要查询后生效
             Mytool.selectList(dr,'findexps_typeid',"//*[@id='findexps_typeid']/option[2]")
             stepList=Mytool.findClasses(dr,'lastStep')
             for att in stepList:
                 if att.get_attribute("onclick")=="search_exp()":
                     att.send_keys(Keys.ENTER)
                     time.sleep(2)
+                    break
         expIdList=self.expertChoose(expnum)#选专家
         # expDict=self.chosedExp()
         # self.Query(u'陈明宇')
+<<<<<<< HEAD
         Mytool.scroll(dr,2100)
         self.stepOp("next()")#下一步
+=======
+        Mytool.scroll(dr,2000)
+        self.stepOp("next()")               #下一步
+>>>>>>> fdf7310a9d5e1896f29a213ef0051970dc8bf333
         time.sleep(1)
-        Mytool.findId(dr,'pro_detail',detail)#问题描述
+        Mytool.findId(dr,'pro_detail',u'比例佣金测试')#问题描述
         Mytool.scroll(dr,2000)
         time.sleep(2)
+<<<<<<< HEAD
         self.stepOp("next()")#下一步
         self.payPage("E",answerNum,answerDay)#支付
+=======
+        self.stepOp("next()")               #下一步
+        self.payPage("E",1,1)               #支付
+>>>>>>> fdf7310a9d5e1896f29a213ef0051970dc8bf333
         time.sleep(2)
         questNo=self.getQuestionNo()
 
         Mytool.saveExc('testcase.csv','questionNo',questNo)
         for ids in range(len(expIdList)):
             Mytool.saveExc('testcase.csv','expid',ids)
+<<<<<<< HEAD
         # for i in range(len(expDict)):
         #     print "expDict%s"%expDict[i]
         #     for k in expDict[i]:
         #         print "key"+k
         #         print "value"+expDict[i][k]
         #         Mytool.saveExc('testcase.csv',k,expDict[i][k])
+=======
+        for i in range(len(expDict)):
+            for k in expDict[i]:
+                Mytool.saveExc('testcase.csv',k,expDict[i][k])
+>>>>>>> fdf7310a9d5e1896f29a213ef0051970dc8bf333
 
 
 #注册页面  Undone
@@ -86,15 +103,21 @@ class raiseQuestion:
         
 
     def stepOp(self,flag):
-        """flag 取值为0,1,2.分别代表上一步 暂存 下一步  
+        """flag 取值为next(),last(),save(2).分别代表上一步 暂存 下一步  
         """
         dr=self.driver
         """上一步 暂存 下一步"""
         stepList=Mytool.findClasses(dr,'lastStep')
         print "stepList lenght is:"+str(len(stepList))
         for i in range(0,len(stepList)):
+<<<<<<< HEAD
             if flag== stepList[i].get_attribute("onclick"):
                 stepList[i].click()
+=======
+             if flag==stepList[i].get_attribute("onclick"):
+                stepList[i].click()
+                break
+>>>>>>> fdf7310a9d5e1896f29a213ef0051970dc8bf333
         del stepList
        
  
@@ -130,16 +153,22 @@ class raiseQuestion:
     def expertChoose(self,num=1):
         u"""选择专家 num represent how many experts you want to choose"""
         dr=self.driver
-        expList=Mytool.findLinks(dr,u"选择")
-        expidList=[]
+        expList=Mytool.findLinks(dr,u"选择")          #存放页面“选择”的链接列表
+        chosedExpIdList=[]                            #存放选中专家的id
         print "length of expList:"+str(len(expList))
         if num>=1 and num<=len(expList):
             for i in range(0,num):
                 expid=expList[i].get_attribute("exp_id")
                 print "expid:"+str(expid)
+<<<<<<< HEAD
                 expList[i].send_keys(Keys.ENTER)
                 expidList.append(expid)
             return expidList
+=======
+                chosedExpIdList.append(expid)
+                expList[i].click()
+            return chosedExpIdList                   #返回选中专家id的list
+>>>>>>> fdf7310a9d5e1896f29a213ef0051970dc8bf333
         else:
             raise IndexError,IndexError('num is out of range')
     
@@ -147,13 +176,22 @@ class raiseQuestion:
         u'''选中专家Tab'''
         dr=self.driver
         choseExpList=[]
+<<<<<<< HEAD
         choseExpDic={}
         Mytool.findId(dr,"selected_exp").send_keys(Keys.ENTER)
         nameList=Mytool.findXpathes(dr,"//*[@id='chioces_exp']/*/*/*/a[1]")
         print"nameList length:%s"%len(nameList)
+=======
+        nameList=[]
+        try:
+            if Mytool.findId(dr,"selected_exp"):
+                Mytool.findId(dr,"selected_exp").click()
+        except Exception as e:
+            self.Err.append(str(e))
+        nameList=Mytool.findXpathes(dr,"//*[@id='chioces_exp']/*/td[2]/span[1]/a[1]")
+>>>>>>> fdf7310a9d5e1896f29a213ef0051970dc8bf333
         chargeList=Mytool.findXpathes(dr,"//input[@class='moneyValue']")
         for i in range(len(nameList)):
-            print nameList[i].text
             choseExpDic['name']=nameList[i].text
             choseExpDic['charge']=chargeList[i].get_attribute('value')
             choseExpList.append(choseExpDic)
@@ -209,7 +247,7 @@ class raiseQuestion:
     def getQuestionNo(self):
         dr=self.driver
         xpath="//*[@id='all']/tbody/tr[1]/td[1]"
-        no=Mytool.findXpath(dr,xpath).text
+        no=Mytool.findXpath(dr,xpath)
         return no
 
     def getTotalprice(self):
@@ -218,7 +256,18 @@ class raiseQuestion:
         priceAmount=Mytool.getDict("priceAmount")
         totalPrice=float(listAmount)*float(priceAmount)
         return totalPrice
-
+    
+    def getAccount(self):
+        u'''获取会员的账户情况'''
+        dr=self.driver
+        url='JSFW/pages/member_center.do'
+        totalAccount=Mytool.findId(dr,'sum').text.lstrip('￥')
+        availableAccount=Mytool.findId(dr,'avlb').text.lstrip('￥')
+        freezeAccount=Mytool.findId(dr,'frz').text.lstrip('￥')
+        accountDict={'total':totalAccount,
+                    'avail':availableAccount,
+                    'freeze':freezeAccount}
+        return accountDict
     def returnDic(self):
         self.dict=Mytool.returnMydic()
         print"the dict has:%s"%len(self.dict)

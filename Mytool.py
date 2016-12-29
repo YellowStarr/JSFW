@@ -81,7 +81,7 @@ def findXpath(dri,xpath):
   ele=dri.find_element_by_xpath(xpath)
   return ele
 def findXpathes(dri,xpath):
-  ele=dri.find_element_by_xpath(xpath)
+  ele=dri.find_elements_by_xpath(xpath)
   return ele
 def findCss(dri,css):
   ele=dri.find_element_by_css_selector(css)
