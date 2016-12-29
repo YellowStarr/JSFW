@@ -52,10 +52,13 @@ class test(unittest.TestCase):
         # Mytool.readExec("F:\\WorkSpace\\python\\JSFW\\testcase.csv")
         driver.get(self.base_url + "/home/unlogin.do")
         li=Login(driver)
-        li.Login("qiuwjcom1",888888)  
+        li.Login("qiuwjcom3",888888)  
         time.sleep(3) 
-        RQ=raiseQuestion(driver)
-        RQ.findExpert(u'数值佣金测试case01',1,2,1,3)
+        RQ=raiseQuestion(driver,self.base_url)
+        aList=RQ.getAccount()
+        for k in aList:
+            print aList[k]
+        RQ.findExpert(u'quartz测试-追问回复截止日期case01',3,2,1,1)
 
     def test_Money(self):
         u'''资金测试'''

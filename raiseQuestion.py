@@ -11,8 +11,9 @@ import os,sys
 
 
 class raiseQuestion:
-    def __init__(self,driver):
+    def __init__(self,driver,url):
         self.driver=driver
+        self.base_url=url
        # self.path='f:\\WorkSpace\\python\\excel\\new.csv'
         self.Err=[]
     def raiseQuestion(self):
@@ -31,11 +32,11 @@ class raiseQuestion:
         self.stepOp(2)
         self.payPage()
 
-    def findExpert(self,expnum=1,questionType=1):
+    def findExpert(self,detail,expnum=1,questionType=1,answer=1,date=0):
         """找专家入口流程"""  
-        expect_url='http://192.168.11.181:8080/JSFW/findexps/findexp.do'
+        exp_url='/findexps/findexp.do'
         dr=self.driver
-        Mytool.findCss(dr,"div.sc_login_after>a").click()
+        dr.get(self.base_url+exp_url)
         time.sleep(2)
         cur_url=dr.current_url
         # assert expect_url==cur_url,"url wrong"
@@ -51,42 +52,37 @@ class raiseQuestion:
         expIdList=self.expertChoose(expnum)#选专家
         # expDict=self.chosedExp()
         # self.Query(u'陈明宇')
-<<<<<<< HEAD
+
         Mytool.scroll(dr,2100)
         self.stepOp("next()")#下一步
-=======
-        Mytool.scroll(dr,2000)
-        self.stepOp("next()")               #下一步
->>>>>>> fdf7310a9d5e1896f29a213ef0051970dc8bf333
         time.sleep(1)
-        Mytool.findId(dr,'pro_detail',u'比例佣金测试')#问题描述
+        Mytool.findId(dr,'pro_detail',detail)#问题描述
+        if questionType==2:
+            evaluationList=Mytool.findNames(dr,'checkbox')
+            evaluationList[0].click()
         Mytool.scroll(dr,2000)
         time.sleep(2)
-<<<<<<< HEAD
+
         self.stepOp("next()")#下一步
-        self.payPage("E",answerNum,answerDay)#支付
-=======
-        self.stepOp("next()")               #下一步
-        self.payPage("E",1,1)               #支付
->>>>>>> fdf7310a9d5e1896f29a213ef0051970dc8bf333
+        self.payPage("E",answer,date)#支付
         time.sleep(2)
         questNo=self.getQuestionNo()
 
         Mytool.saveExc('testcase.csv','questionNo',questNo)
         for ids in range(len(expIdList)):
             Mytool.saveExc('testcase.csv','expid',ids)
-<<<<<<< HEAD
+
         # for i in range(len(expDict)):
         #     print "expDict%s"%expDict[i]
         #     for k in expDict[i]:
         #         print "key"+k
         #         print "value"+expDict[i][k]
         #         Mytool.saveExc('testcase.csv',k,expDict[i][k])
-=======
+
         for i in range(len(expDict)):
             for k in expDict[i]:
                 Mytool.saveExc('testcase.csv',k,expDict[i][k])
->>>>>>> fdf7310a9d5e1896f29a213ef0051970dc8bf333
+
 
 
 #注册页面  Undone
@@ -110,14 +106,10 @@ class raiseQuestion:
         stepList=Mytool.findClasses(dr,'lastStep')
         print "stepList lenght is:"+str(len(stepList))
         for i in range(0,len(stepList)):
-<<<<<<< HEAD
-            if flag== stepList[i].get_attribute("onclick"):
-                stepList[i].click()
-=======
-             if flag==stepList[i].get_attribute("onclick"):
+            if flag == stepList[i].get_attribute("onclick"):
+                print flag
                 stepList[i].click()
                 break
->>>>>>> fdf7310a9d5e1896f29a213ef0051970dc8bf333
         del stepList
        
  
@@ -160,15 +152,10 @@ class raiseQuestion:
             for i in range(0,num):
                 expid=expList[i].get_attribute("exp_id")
                 print "expid:"+str(expid)
-<<<<<<< HEAD
-                expList[i].send_keys(Keys.ENTER)
-                expidList.append(expid)
-            return expidList
-=======
                 chosedExpIdList.append(expid)
-                expList[i].click()
+                expList[i].send_keys(Keys.ENTER)
             return chosedExpIdList                   #返回选中专家id的list
->>>>>>> fdf7310a9d5e1896f29a213ef0051970dc8bf333
+
         else:
             raise IndexError,IndexError('num is out of range')
     
@@ -176,12 +163,12 @@ class raiseQuestion:
         u'''选中专家Tab'''
         dr=self.driver
         choseExpList=[]
-<<<<<<< HEAD
+
         choseExpDic={}
         Mytool.findId(dr,"selected_exp").send_keys(Keys.ENTER)
         nameList=Mytool.findXpathes(dr,"//*[@id='chioces_exp']/*/*/*/a[1]")
         print"nameList length:%s"%len(nameList)
-=======
+
         nameList=[]
         try:
             if Mytool.findId(dr,"selected_exp"):
@@ -189,7 +176,7 @@ class raiseQuestion:
         except Exception as e:
             self.Err.append(str(e))
         nameList=Mytool.findXpathes(dr,"//*[@id='chioces_exp']/*/td[2]/span[1]/a[1]")
->>>>>>> fdf7310a9d5e1896f29a213ef0051970dc8bf333
+
         chargeList=Mytool.findXpathes(dr,"//input[@class='moneyValue']")
         for i in range(len(nameList)):
             choseExpDic['name']=nameList[i].text
@@ -237,7 +224,7 @@ class raiseQuestion:
             Mytool.findId(dr,"payment_pwd").send_keys("888888")
             #Mytool.findId(dr,"payment_checknum").send_keys("1")
             time.sleep(3)
-        self.stepOp(4)
+        self.stepOp("save(5)")
         time.sleep(2)
         if Mytool.findClass(dr,"s_ok"):
             Mytool.findClass(dr,"s_ok").click()
@@ -260,7 +247,9 @@ class raiseQuestion:
     def getAccount(self):
         u'''获取会员的账户情况'''
         dr=self.driver
-        url='JSFW/pages/member_center.do'
+        url='/pages/member_center.do'
+        dr.get(self.base_url+url)
+        time.sleep(2)
         totalAccount=Mytool.findId(dr,'sum').text.lstrip('￥')
         availableAccount=Mytool.findId(dr,'avlb').text.lstrip('￥')
         freezeAccount=Mytool.findId(dr,'frz').text.lstrip('￥')

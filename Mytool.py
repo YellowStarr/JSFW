@@ -98,6 +98,9 @@ def findLinks(dri,link):
 def findName(dri,name):
   ele=dri.find_element_by_name(name)
   return ele
+def findNames(dri,name):
+  ele=dri.find_elements_by_name(name)
+  return ele
 def findTag(dri,tagname):
   ele=dri.find_element_by_tag_name(tagname)
   return ele
