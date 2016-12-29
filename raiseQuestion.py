@@ -48,15 +48,15 @@ class raiseQuestion:
                     att.send_keys(Keys.ENTER)
                     time.sleep(2)
         expIdList=self.expertChoose(expnum)#选专家
-        expDict=self.chosedExp()
+        # expDict=self.chosedExp()
         # self.Query(u'陈明宇')
-        Mytool.scroll(dr,2000)
-        self.stepOp(2)#下一步
+        Mytool.scroll(dr,2100)
+        self.stepOp("next()")#下一步
         time.sleep(1)
         Mytool.findId(dr,'pro_detail',detail)#问题描述
         Mytool.scroll(dr,2000)
         time.sleep(2)
-        self.stepOp(4)#下一步
+        self.stepOp("next()")#下一步
         self.payPage("E",answerNum,answerDay)#支付
         time.sleep(2)
         questNo=self.getQuestionNo()
@@ -64,12 +64,12 @@ class raiseQuestion:
         Mytool.saveExc('testcase.csv','questionNo',questNo)
         for ids in range(len(expIdList)):
             Mytool.saveExc('testcase.csv','expid',ids)
-        for i in range(len(expDict)):
-            print "expDict%s"%expDict[i]
-            for k in expDict[i]:
-                print "key"+k
-                print "value"+expDict[i][k]
-                Mytool.saveExc('testcase.csv',k,expDict[i][k])
+        # for i in range(len(expDict)):
+        #     print "expDict%s"%expDict[i]
+        #     for k in expDict[i]:
+        #         print "key"+k
+        #         print "value"+expDict[i][k]
+        #         Mytool.saveExc('testcase.csv',k,expDict[i][k])
 
 
 #注册页面  Undone
@@ -92,10 +92,9 @@ class raiseQuestion:
         """上一步 暂存 下一步"""
         stepList=Mytool.findClasses(dr,'lastStep')
         print "stepList lenght is:"+str(len(stepList))
-        print stepList[flag].get_attribute("class")
         for i in range(0,len(stepList)):
-            print stepList[i].get_attribute("class")
-        stepList[flag].click()
+            if flag== stepList[i].get_attribute("onclick"):
+                stepList[i].click()
         del stepList
        
  
@@ -138,7 +137,7 @@ class raiseQuestion:
             for i in range(0,num):
                 expid=expList[i].get_attribute("exp_id")
                 print "expid:"+str(expid)
-                expList[i].click()
+                expList[i].send_keys(Keys.ENTER)
                 expidList.append(expid)
             return expidList
         else:
@@ -149,7 +148,7 @@ class raiseQuestion:
         dr=self.driver
         choseExpList=[]
         choseExpDic={}
-        Mytool.findId(dr,"selected_exp").click()
+        Mytool.findId(dr,"selected_exp").send_keys(Keys.ENTER)
         nameList=Mytool.findXpathes(dr,"//*[@id='chioces_exp']/*/*/*/a[1]")
         print"nameList length:%s"%len(nameList)
         chargeList=Mytool.findXpathes(dr,"//input[@class='moneyValue']")
