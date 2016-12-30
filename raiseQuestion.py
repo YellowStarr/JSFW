@@ -16,6 +16,9 @@ class raiseQuestion:
         self.base_url=url
        # self.path='f:\\WorkSpace\\python\\excel\\new.csv'
         self.Err=[]
+        self.recordDic={}
+        self.List=[]
+        self.expIdList=[]
     def raiseQuestion(self):
         """提问题入口"""  
         expect_url='http://192.168.11.181:8080/JSFW/problem/find_problem.do'
@@ -49,14 +52,15 @@ class raiseQuestion:
                     att.send_keys(Keys.ENTER)
                     time.sleep(2)
                     break
-        expIdList=self.expertChoose(expnum)#选专家
-        # expDict=self.chosedExp()
+        self.expertChoose(expnum)#选专家
+        self.chosedExp()
         # self.Query(u'陈明宇')
 
         Mytool.scroll(dr,2100)
         self.stepOp("next()")#下一步
         time.sleep(1)
         Mytool.findId(dr,'pro_detail',detail)#问题描述
+        self.recordDic['detail']=detail
         if questionType==2:
             evaluationList=Mytool.findNames(dr,'checkbox')
             evaluationList[0].click()
@@ -66,24 +70,10 @@ class raiseQuestion:
         self.stepOp("next()")#下一步
         self.payPage("E",answer,date)#支付
         time.sleep(2)
-        questNo=self.getQuestionNo()
+        self.getQuestionNo()
 
-        Mytool.saveExc('testcase.csv','questionNo',questNo)
-        for ids in range(len(expIdList)):
-            Mytool.saveExc('testcase.csv','expid',ids)
-
-        # for i in range(len(expDict)):
-        #     print "expDict%s"%expDict[i]
-        #     for k in expDict[i]:
-        #         print "key"+k
-        #         print "value"+expDict[i][k]
-        #         Mytool.saveExc('testcase.csv',k,expDict[i][k])
-
-        for i in range(len(expDict)):
-            for k in expDict[i]:
-                Mytool.saveExc('testcase.csv',k,expDict[i][k])
-
-
+        #Mytool.saveExc('testcase.csv','questionNo',questNo)
+        
 
 #注册页面  Undone
     def Register(self):
@@ -91,6 +81,16 @@ class raiseQuestion:
         Mytool.findClass(dr,'s_free').click()
         time.sleep(2)
         cur_url=dr.current_url
+
+    def getChoseExp(self):
+        expInfo=self.List
+        return expInfo
+
+    def printExp(self):
+        for ids in range(len(self.expIdList)):
+            self.List[ids]['expid']=self.expIdList[ids]
+            for k in self.List[ids]:
+                Mytool.saveExc('testcase.csv',k,self.List[ids][k])
 
     def getErr(self):
         if len(self.Err)!=0:
@@ -146,44 +146,29 @@ class raiseQuestion:
         u"""选择专家 num represent how many experts you want to choose"""
         dr=self.driver
         expList=Mytool.findLinks(dr,u"选择")          #存放页面“选择”的链接列表
-        chosedExpIdList=[]                            #存放选中专家的id
         print "length of expList:"+str(len(expList))
         if num>=1 and num<=len(expList):
             for i in range(0,num):
                 expid=expList[i].get_attribute("exp_id")
                 print "expid:"+str(expid)
-                chosedExpIdList.append(expid)
+                self.expIdList.append(expid)
                 expList[i].send_keys(Keys.ENTER)
-            return chosedExpIdList                   #返回选中专家id的list
-
         else:
             raise IndexError,IndexError('num is out of range')
     
     def chosedExp(self):
         u'''选中专家Tab'''
         dr=self.driver
-        choseExpList=[]
-
-        choseExpDic={}
-        Mytool.findId(dr,"selected_exp").send_keys(Keys.ENTER)
+        Mytool.findId(dr,"selected_exp").click()
         nameList=Mytool.findXpathes(dr,"//*[@id='chioces_exp']/*/*/*/a[1]")
-        print"nameList length:%s"%len(nameList)
-
-        nameList=[]
-        try:
-            if Mytool.findId(dr,"selected_exp"):
-                Mytool.findId(dr,"selected_exp").click()
-        except Exception as e:
-            self.Err.append(str(e))
-        nameList=Mytool.findXpathes(dr,"//*[@id='chioces_exp']/*/td[2]/span[1]/a[1]")
-
+        print"nameList length:%s"%len(nameList)  
         chargeList=Mytool.findXpathes(dr,"//input[@class='moneyValue']")
         for i in range(len(nameList)):
+            choseExpDic={}
             choseExpDic['name']=nameList[i].text
             choseExpDic['charge']=chargeList[i].get_attribute('value')
-            choseExpList.append(choseExpDic)
-        return choseExpList
-
+            self.List.append(choseExpDic)
+        
 
 #上传图片
     def upload_Pic(self,url):
@@ -214,15 +199,23 @@ class raiseQuestion:
         n_exp.send_keys(n)
         reply_time=Mytool.findCss(dr,"#re_date>input")
         exp_time=datetime.date.today()+datetime.timedelta(t)#期望回复日期
+        recordTime=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         ti=str(exp_time)
-        print ti
         reply_time.send_keys(ti)
+
+        expFee=Mytool.findId(dr,'payment_money').text
+        commission=Mytool.findId(dr,'payment_yj').text
+        totalCost=Mytool.findId(dr,'xf_money').text
+        self.recordDic['expFee']=expFee
+        self.recordDic['commission']=commission
+        self.recordDic['totalCost']=totalCost
+        self.recordDic['recordTime']=recordTime
+        self.recordDic['reply_time']=ti
+
         if flag=="Q":
             Mytool.findCss(dr,"#payment_pwd>input").send_keys("888888")
-            Mytool.findId(dr,"payment_checknum").send_keys("1")
         elif flag=="E":
             Mytool.findId(dr,"payment_pwd").send_keys("888888")
-            #Mytool.findId(dr,"payment_checknum").send_keys("1")
             time.sleep(3)
         self.stepOp("save(5)")
         time.sleep(2)
@@ -233,9 +226,14 @@ class raiseQuestion:
     
     def getQuestionNo(self):
         dr=self.driver
+        cur_url=dr.current_url
+        exp_url=self.base_url+'/memquestion/question.do'
+        if cur_url!=exp_url:
+            dr.get(exp_url)
+            time.sleep(1)
         xpath="//*[@id='all']/tbody/tr[1]/td[1]"
-        no=Mytool.findXpath(dr,xpath)
-        return no
+        no=Mytool.findXpath(dr,xpath).get_attribute('title')
+        self.recordDic['questionNo']=no
 
     def getTotalprice(self):
         '''return the expert cost add on the fee'''
@@ -253,12 +251,11 @@ class raiseQuestion:
         totalAccount=Mytool.findId(dr,'sum').text.lstrip('￥')
         availableAccount=Mytool.findId(dr,'avlb').text.lstrip('￥')
         freezeAccount=Mytool.findId(dr,'frz').text.lstrip('￥')
-        accountDict={'total':totalAccount,
+        accoutnDic={'total':totalAccount,
                     'avail':availableAccount,
                     'freeze':freezeAccount}
-        return accountDict
+        return accoutnDic
     def returnDic(self):
-        self.dict=Mytool.returnMydic()
-        print"the dict has:%s"%len(self.dict)
-        return self.dict
+        outputDict=self.recordDic 
+        return outputDict
 

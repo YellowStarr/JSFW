@@ -47,18 +47,36 @@ class test(unittest.TestCase):
 
     def test_Exp(self):
         u"""技术服务找专家测试"""
+
+        initDict={
+            'uname':'qiuwjcom4',
+            'pwd':888888,
+            'detail':u'数值佣金测试-case-21',
+            'choseExp':3,
+            'questionType':2,
+            'answerNum':2,
+            'lastDay':1
+        }
+
         driver = self.driver
         driver.delete_all_cookies()
         # Mytool.readExec("F:\\WorkSpace\\python\\JSFW\\testcase.csv")
         driver.get(self.base_url + "/home/unlogin.do")
         li=Login(driver)
-        li.Login("qiuwjcom3",888888)  
+        li.Login(initDict['uname'],initDict['pwd'])  
         time.sleep(3) 
         RQ=raiseQuestion(driver,self.base_url)
-        aList=RQ.getAccount()
-        for k in aList:
-            print aList[k]
-        RQ.findExpert(u'quartz测试-追问回复截止日期case01',3,2,1,1)
+        initAccountDict=RQ.getAccount()
+        RQ.findExpert(initDict['detail'],initDict['choseExp'],initDict['questionType'],initDict['answerNum'],initDict['lastDay'])
+        dic=RQ.returnDic()
+        Mytool.saveExc('testcase.csv','questionNo',dic['questionNo'])
+        for k in initAccountDict:
+            Mytool.saveExc('testcase.csv',k,initAccountDict[k])
+        # del dic['questionNo']
+        for k in dic:
+            if k!='questionNo':
+                Mytool.saveExc('testcase.csv',k,dic[k])
+        RQ.printExp()
 
     def test_Money(self):
         u'''资金测试'''
