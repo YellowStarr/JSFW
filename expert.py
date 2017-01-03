@@ -11,14 +11,34 @@ import os,sys
 
 
 class Expert:
-    def __init__(self,driver):
+    def __init__(self,driver,url):
         self.driver=driver
        # self.path='f:\\WorkSpace\\python\\excel\\new.csv'
         self.Err=[]
         dict=[]
-        
+        self.moneyDict={}
+        self.baseurl=url
+    
+    def getmoneyDict(self):
+        dict=self.moneyDict
+        return dict
+
+    def getExpAccount(self):
+        """获取专家账户总资金 可用资金 冻结资金 本月收入"""
+        dr=self.driver
+        exp="/pages/exphome.do"
+        expurl=self.baseurl+exp
+        totalAccount=Mytool.findId(dr,"all_money").text
+        availableMoney=Mytool.findId(dr,"ky_money").text
+        freezeMoney=Mytool.findId(dr,"dj_money").text
+        monthMoney=Mytool.findId(dr,"mouth_account").text
+        self.moneyDict['totalAccount']=totalAccount
+        self.moneyDict['availableMoney']=availableMoney
+        self.moneyDict['freezeMoney']=freezeMoney
+        self.moneyDict['monthMoney']=monthMoney
+'''
     def Info(self):
-        """个人信息"""  
+        """专家信息"""  
         #expect_url='http://192.168.11.181:8080/JSFW/problem/find_problem.do'
         dr=self.driver
         Mytool.findLink(dr,u"我的问题").click()
@@ -41,22 +61,7 @@ class Expert:
         card_no=Mytool.findId(dr,"card_no")
         limit=Mytool.findId(dr,"card_front_pg")
         saveBtn=Mytool.findCss(dr,u"input[value='保存']")
-       
-        Mytool.setDict("userName",userName)
-        Mytool.setDict("realName",realName)
-        Mytool.setDict("sex",sex)
-        Mytool.setDict("email",email)
-        Mytool.setDict("tel_head",tel_head)
-        Mytool.setDict("tel_body",tel_body)
-        Mytool.setDict("qq",qq)
-        Mytool.setDict("work",work)
-        Mytool.setDict("industry",industry)
-        Mytool.setDict("product",product)
-        Mytool.setDict("addr",addr)
-        Mytool.setDict("card_no",card_no)
-        Mytool.setDict("limit",limit)
-        Mytool.setDict("saveBtn",saveBtn)
-    
+'''
     def setInfo(self):
         uname=Mytool.getDict('userName')
         uname.clear()
@@ -67,7 +72,9 @@ class Expert:
         """我的问题"""  
         #expect_url='http://192.168.11.181:8080/JSFW/problem/find_problem.do'
         dr=self.driver
-        Mytool.findId(dr,"expert_question").click()
+        exp="/pages/expert_question.do?view=expert_question"
+        dr.get(self.baseurl+exp)
+        # Mytool.findId(dr,"expert_question").click()
         time.sleep(2)
         ele=Mytool.findId(dr,'my_question0')
         ActionChains(dr).move_to_element(ele).click()
@@ -88,44 +95,6 @@ class Expert:
 
         dr.get_screenshot_as_file("F:/WorkSpace/python/JSFW/MyQuestion.png")
         djmoney=Mytool.findId(dr,"djmoney").text
-        Mytool.setDict("dj",djmoney)
-
-    def AnswerQuestion(self,No):
-        u"""专家回复问题"""
-        dr=self.driver
-        Mytool.findLink(dr,u"我的问题").click()
-        time.sleep(2)
-        Mytool.findId(dr,"exp_re_question").click()
-        Mytool.findId(dr,"pro_code",No)
-        queryBt=Mytool.findClass(dr,"save_btn")
-        resetBt=Mytool.findClass(dr,"return_btn")
-        queryBt.send_keys(Keys.ENTER)
-        time.sleep(2)
-        dr.get_screenshot_as_file("F:/WorkSpace/python/JSFW/AnswerQuestion.png")
-        deadTime=Mytool.findXpath(dr,"//*[@id='re_question']/tbody/tr[1]/td[4]").text
-        expName=Mytool.findXpath(dr,"//*[@id='re_question']/tbody/tr[1]/td[5]").text
-        cost=Mytool.findXpath(dr,"//*[@id='re_question']/tbody/tr[1]/td[6]").text
-        state=Mytool.findXpath(dr,"//*[@id='re_question']/tbody/tr[1]/td[8]").text
-        Mytool.findClass(dr,"look_btn").send_keys(Keys.ENTER)
-        
-        Mytool.setDict("deadTime",deadTime)
-        Mytool.setDict("expName",expName)
-        Mytool.setDict("cost",cost)
-        # Mytool.setDict("expName",expName)
-        Mytool.setDict("state",state)
-
-
-#上传图片
-    def upload_Pic(self,url):
-        self.driver.find_element_by_id("uppicpath").click()
-        time.sleep(2)
-        js="document.getElementsByClassName('ks-editor-input')[0].readOnly=false"
-        self.driver.execute_script(js)
-        self.driver.find_element_by_name("test").send_keys(url)
-        self.driver.find_element_by_css_selector("button[datas='up']").click()
-        time.sleep(2)
-        self.driver.find_element_by_css_selector("div.ks-overlay-footer>div>button[datas='ok']").click()
-        time.sleep(1)
 
     def returnDic(self):
         self.dict=Mytool.returnMydic()

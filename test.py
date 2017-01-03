@@ -21,7 +21,7 @@ class test(unittest.TestCase):
     def setUp(self):
         reload(sys)
         sys.setdefaultencoding('utf-8')
-        #self.driver = webdriver.Firefox()
+        # self.driver = webdriver.Firefox()
         self.driver = webdriver.Chrome()
         self.driver.implicitly_wait(30)
         self.base_url = "http://218.249.25.106:15301/JSFW"
@@ -84,11 +84,11 @@ class test(unittest.TestCase):
         driver.delete_all_cookies()
         driver.get(self.base_url + "/home/unlogin.do")
         li=Login(driver)
-        li.Login("qiuwjn2",888888)  
+        li.Login("10",888888)  
         time.sleep(3) 
 
-        RQ=raiseQuestion(driver)
-        RQ.findExpert()
+        RQ=Exper(driver,self.base_url)
+        RQ.myQuestion('xmpj20161230171351',u'查看')
         
 
         # try:self.assertEqual(u"完成",Mytool.getDict("state"))
@@ -162,8 +162,8 @@ if __name__ == "__main__":
     testunit=unittest.TestSuite()
     # testunit.addTest(test("test_DeadTime"))
     #testunit.addTest(test("test_PersonCenter"))
-    testunit.addTest(test("test_Exp"))
-
+    # testunit.addTest(test("test_Exp"))
+    testunit.addTest(test("test_Money"))
     #  filename="f:\\WorkSpace\\python\\JSFW\\repoter.html"
     # fp=file(filename,'wb')
     # runner=HTMLTestRunner.HTMLTestRunner(stream=fp,title='testreport',description='caseRun')
