@@ -15,13 +15,11 @@ class Expert:
         self.driver=driver
        # self.path='f:\\WorkSpace\\python\\excel\\new.csv'
         self.Err=[]
-        dict=[]
-        self.moneyDict={}
+        comdict={}
         self.baseurl=url
     
-    def getmoneyDict(self):
-        dict=self.moneyDict
-        return dict
+    def getDict(self):
+        return comdict
 
     def getExpAccount(self):
         """获取专家账户总资金 可用资金 冻结资金 本月收入"""
@@ -32,12 +30,12 @@ class Expert:
         availableMoney=Mytool.findId(dr,"ky_money").text
         freezeMoney=Mytool.findId(dr,"dj_money").text
         monthMoney=Mytool.findId(dr,"mouth_account").text
-        self.moneyDict['totalAccount']=totalAccount
-        self.moneyDict['availableMoney']=availableMoney
-        self.moneyDict['freezeMoney']=freezeMoney
-        self.moneyDict['monthMoney']=monthMoney
-'''
-    def Info(self):
+        comdict['totalAccount']=totalAccount
+        comdict['availableMoney']=availableMoney
+        comdict['freezeMoney']=freezeMoney
+        comdict['monthMoney']=monthMoney
+
+    '''def Info(self):
         """专家信息"""  
         #expect_url='http://192.168.11.181:8080/JSFW/problem/find_problem.do'
         dr=self.driver
@@ -60,8 +58,7 @@ class Expert:
         addr=Mytool.findId(dr,"detail_add")
         card_no=Mytool.findId(dr,"card_no")
         limit=Mytool.findId(dr,"card_front_pg")
-        saveBtn=Mytool.findCss(dr,u"input[value='保存']")
-'''
+        saveBtn=Mytool.findCss(dr,u"input[value='保存']")'''
     def setInfo(self):
         uname=Mytool.getDict('userName')
         uname.clear()
@@ -76,10 +73,11 @@ class Expert:
         dr.get(self.baseurl+exp)
         # Mytool.findId(dr,"expert_question").click()
         time.sleep(2)
-        ele=Mytool.findId(dr,'my_question0')
-        ActionChains(dr).move_to_element(ele).click()
+        ele=Mytool.findClass(dr,'my_question')
+        ActionChains(dr).move_to_element(ele).perform()
         time.sleep(1)
         Mytool.findId(dr,"pro_id",No)
+        comdict['questionNo']=No
         queryBt=Mytool.findClass(dr,"save_btn")
         resetBt=Mytool.findClass(dr,"return_btn")
         queryBt.send_keys(Keys.ENTER)
@@ -88,13 +86,38 @@ class Expert:
         stateV=state.get_attribute("title")
         btnList=Mytool.findClasses(dr,'look_btn')
         for btn in range(len(btnList)):
-            value=btn.get_attribute("value")
+            value=btnList[btn].get_attribute("value")
             if value==btName:
-                btn.send_keys(Keys.ENTER)
+                btnList[btn].send_keys(Keys.ENTER)
                 time.sleep(2)
+                break
 
-        dr.get_screenshot_as_file("F:/WorkSpace/python/JSFW/MyQuestion.png")
-        djmoney=Mytool.findId(dr,"djmoney").text
+        dr.get_screenshot_as_file("screenshot\\MyQuestion.png")
+        # djmoney=Mytool.findId(dr,"djmoney").text
+    
+    def Reply(self,text,Op):
+        dr=self.driver
+        replayText=Mytool.findId(dr,'pro_re_det')
+        replayText.send_keys(text)
+        btDict={}
+        btlist=Mytool.findClasses(dr,'sc_btn_to')
+        for i in range(len(btlist)):
+            if 'save(1)'==btlist[i].get_attribute('onclick'):
+                btDict['reply']=btlist[i]
+            elif 'canNotRe()'==btlist[i].get_attribute('onclick'):
+                btDict['refuse']=btlist[i]
+            elif 'toShow()'==btlist[i].get_attribute('onclick'):
+                btDict['up']=btlist[i]
+            else:
+                break 
+        btDict['back']=Mytool.findClass(dr,'sc_btn_bac')
+        btDict[Op].click()
+        time.sleep(1)
+        if Op=='reply' or Op=='refuse': 
+            comdict['replytime']=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            Mytool.findClass(dr,'s_ok')
+        elif Op=='up':
+            pass
 
     def returnDic(self):
         self.dict=Mytool.returnMydic()

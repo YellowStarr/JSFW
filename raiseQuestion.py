@@ -89,8 +89,7 @@ class raiseQuestion:
     def printExp(self):
         for ids in range(len(self.expIdList)):
             self.List[ids]['expid']=self.expIdList[ids]
-            for k in self.List[ids]:
-                Mytool.saveExc('testcase.csv',k,self.List[ids][k])
+            Mytool.saveExc('testcase.csv',self.List[ids])
 
     def getErr(self):
         if len(self.Err)!=0:

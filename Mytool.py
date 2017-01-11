@@ -12,21 +12,25 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import NoAlertPresentException
 import unittest
 myDict={}
-def saveExc(path,title,val):
+def saveExc(path,dic,space=False):
   row=0
   wb=''
   if(os.path.exists(path)):
     data=xlrd.open_workbook(path)
     ta=data.sheets()[0]
     row=ta.nrows
+    if space==True:
+      row=row+1
     wb=xlwt.Workbook()
     wb=copy(data)
     table=wb.get_sheet(0)
   else:
     wb=xlwt.Workbook()
     table=wb.add_sheet(u"data1")
-  table.write(row,0,title)
-  table.write(row,1,val)
+  for k in dic:
+    table.write(row,0,k)
+    table.write(row,1,dic[k])
+    row=row+1
   wb.save(path)
   print "rows:%s "%(row+1)
  
@@ -111,9 +115,9 @@ def findPartialLink(dri,para):
   ele=dri.find_element_by_partial_link_text(para)
   return ele
 
-def getScreen(driver,path=u'f:\\workspace\\python',format="%y-%m-%d_%H_%M_%S"):
+def getScreen(driver,path='screenshot\\',format="%y%m%d-%H%M%S"):
   now=time.strftime(format,time.localtime(time.time()))
-  driver.get_screenshot_as_file(path+'\\%s.png'%now)
+  driver.get_screenshot_as_file(path+'%s.png'%now)
 
 def verify(driver,result,expect):
   if result==expect:

@@ -12,9 +12,9 @@ from selenium.common.exceptions import NoAlertPresentException
 import unittest, time, re
 from login import Login
 from raiseQuestion import raiseQuestion
+from expert import Expert
 from person import Person
-import os,sys
-import Mytool
+import os,sys,datetime,Mytool
 import HTMLTestRunner
 
 class test(unittest.TestCase):
@@ -24,12 +24,14 @@ class test(unittest.TestCase):
         # self.driver = webdriver.Firefox()
         self.driver = webdriver.Chrome()
         self.driver.implicitly_wait(30)
-        self.base_url = "http://218.249.25.106:15301/JSFW"
+        #self.base_url = "http://218.249.25.106:15301/JSFW"
+        self.base_url = "http://192.168.11.181:8080/JSFW"
         self.verificationErrors = []
         self.accept_next_alert = True
         #self.f=open("f:/workspace/python/data.txt","w")
         self.driver.maximize_window()
-        global dict
+        dict={}
+
 
     def test_LG(self):
         u"""技术服务提问题测试"""
@@ -49,13 +51,13 @@ class test(unittest.TestCase):
         u"""技术服务找专家测试"""
 
         initDict={
-            'uname':'qiuwjcom4',
+            'uname':'qiuwjcom2',
             'pwd':888888,
-            'detail':u'数值佣金测试-case-21',
-            'choseExp':3,
-            'questionType':2,
-            'answerNum':2,
-            'lastDay':1
+            'detail':u'追问回复截止时间',
+            'choseExp':1,
+            'questionType':1,
+            'answerNum':1,
+            'lastDay':0,
         }
 
         driver = self.driver
@@ -69,27 +71,32 @@ class test(unittest.TestCase):
         initAccountDict=RQ.getAccount()
         RQ.findExpert(initDict['detail'],initDict['choseExp'],initDict['questionType'],initDict['answerNum'],initDict['lastDay'])
         dic=RQ.returnDic()
-        Mytool.saveExc('testcase.csv','questionNo',dic['questionNo'])
-        for k in initAccountDict:
-            Mytool.saveExc('testcase.csv',k,initAccountDict[k])
-        # del dic['questionNo']
-        for k in dic:
-            if k!='questionNo':
-                Mytool.saveExc('testcase.csv',k,dic[k])
-        RQ.printExp()
+        global quNo
+        quNo=dic['questionNo']
+        datestamp=datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        name=datestamp+'-'+dic['questionNo']
+        filename='screenshot\\%s.png'%name
+        filename=filename.replace(' ','')
+        RQ.detailOfInAndOut(filename)
+        Mytool.saveExc('testcase.xls',initAccountDict,True)
+        Mytool.saveExc('testcase.xls',dic)
+        # RQ.printExp()
 
-    def test_Money(self):
-        u'''资金测试'''
+    def test_ExpertReply(self): 
         driver = self.driver
         driver.delete_all_cookies()
-        driver.get(self.base_url + "/home/unlogin.do")
+        driver.get(self.base_url + "/user/login.do")
         li=Login(driver)
-        li.Login("10",888888)  
+        li.Login("1",888888)  
         time.sleep(3) 
-
-        RQ=Exper(driver,self.base_url)
-        RQ.myQuestion('xmpj20161230171351',u'查看')
-        
+        Exp=Expert(driver,self.base_url)
+        Exp.getExpAccount()
+        account=Exp.getmoneyDict()
+        Mytool.getScreen(driver)
+        Exp.myQuestion(quNo,u'回复')
+        time.sleep(1)
+        Exp.Reply('reply','reply')
+        # Mytool.saveExc('money.xls',account)
 
         # try:self.assertEqual(u"完成",Mytool.getDict("state"))
         # except AssertionError as e: self.verificationErrors.append(str(e))
@@ -155,15 +162,15 @@ class test(unittest.TestCase):
         finally: self.accept_next_alert = True
 
     def tearDown(self):
-        # self.driver.quit()
+        self.driver.quit()
         self.assertEqual([], self.verificationErrors)
             
 if __name__ == "__main__":
     testunit=unittest.TestSuite()
     # testunit.addTest(test("test_DeadTime"))
     #testunit.addTest(test("test_PersonCenter"))
-    # testunit.addTest(test("test_Exp"))
-    testunit.addTest(test("test_Money"))
+    testunit.addTest(test("test_Exp"))
+    testunit.addTest(test("test_ExpertReply"))
     #  filename="f:\\WorkSpace\\python\\JSFW\\repoter.html"
     # fp=file(filename,'wb')
     # runner=HTMLTestRunner.HTMLTestRunner(stream=fp,title='testreport',description='caseRun')
