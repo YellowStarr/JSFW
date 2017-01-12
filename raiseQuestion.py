@@ -35,23 +35,19 @@ class raiseQuestion:
         self.stepOp(2)
         self.payPage()
 
-    def findExpert(self,detail,expnum=1,questionType=1,answer=1,date=0):
+    def findExpert(self,detail,expnum,questionType=1,answer=1,date=0):
         """找专家入口流程"""  
-        exp_url='/findexps/findexp.do'
+        exp_url='/findexps/giveQuestions.do'
         dr=self.driver
         dr.get(self.base_url+exp_url)
         time.sleep(2)
         cur_url=dr.current_url
         # assert expect_url==cur_url,"url wrong"
-        time.sleep(4)
-        if questionType==2:         #项目评价，需要查询后生效
-            Mytool.selectList(dr,'findexps_typeid',"//*[@id='findexps_typeid']/option[2]")
-            stepList=Mytool.findClasses(dr,'lastStep')
-            for att in stepList:
-                if att.get_attribute("onclick")=="search_exp()":
-                    att.send_keys(Keys.ENTER)
-                    time.sleep(2)
-                    break
+        if questionType==2:
+            quesTypes=Mytool.findClasses(dr,'sc-check-box02')
+            # print quesTypes[1].get_attribute('value')
+            quesTypes[1].click()
+
         self.expertChoose(expnum)#选专家
         self.chosedExp()
         # self.Query(u'陈明宇')
@@ -89,7 +85,7 @@ class raiseQuestion:
     def printExp(self):
         for ids in range(len(self.expIdList)):
             self.List[ids]['expid']=self.expIdList[ids]
-            Mytool.saveExc('testcase.csv',self.List[ids])
+            Mytool.saveExc('testcase.xls',self.List[ids])
 
     def getErr(self):
         if len(self.Err)!=0:
@@ -139,22 +135,30 @@ class raiseQuestion:
                 att.send_keys(Keys.ENTER)
                 Mytool.findLink(dr,u"选择").send_keys(Keys.ENTER)
 
-        
-
-    def expertChoose(self,num=1):
+    def expertChoose(self,num):
         u"""选择专家 num represent how many experts you want to choose"""
         dr=self.driver
-        expList=Mytool.findLinks(dr,u"选择")          #存放页面“选择”的链接列表
+        expList=Mytool.findClasses(dr,'sc-a')          #存放页面“选择”的链接列表
         print "length of expList:"+str(len(expList))
-        if num>=1 and num<=len(expList):
-            for i in range(0,num):
-                expid=expList[i].get_attribute("exp_id")
-                print "expid:"+str(expid)
-                self.expIdList.append(expid)
-                expList[i].send_keys(Keys.ENTER)
-        else:
-            raise IndexError,IndexError('num is out of range')
-    
+        if isinstance(num,int):
+            if num>=1 and num<=len(expList):
+                for i in range(0,num):
+                    expid=expList[i].get_attribute("exp_id")
+                    print "expid:"+str(expid)
+                    self.expIdList.append(expid)
+                    expList[i].send_keys(Keys.ENTER)
+            else:
+                raise IndexError,IndexError('num is out of range')
+        elif isinstance(num,list):
+            print 'list'
+            self.expIdList=list
+            for k in range(len(num)):
+                print num[k]
+                for m in range(len(expList)):
+                    if num[k]==int(expList[m].get_attribute("exp_id")):
+                        expList[m].send_keys(Keys.ENTER)
+
+        
     def chosedExp(self):
         u'''选中专家Tab'''
         dr=self.driver
@@ -254,6 +258,14 @@ class raiseQuestion:
                     'avail':availableAccount,
                     'freeze':freezeAccount}
         return accoutnDic
+
+    def detailOfInAndOut(self,filename):
+        dr=self.driver
+        url='/pages/user_charge.do'
+        dr.get(self.base_url+url)
+        time.sleep(2)
+        dr.get_screenshot_as_file(filename)
+
     def returnDic(self):
         outputDict=self.recordDic 
         return outputDict

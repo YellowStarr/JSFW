@@ -91,20 +91,35 @@ class Person:
         resetBt=Mytool.findClass(dr,"return_btn")
         queryBt.send_keys(Keys.ENTER)
         time.sleep(2)
-        dr.get_screenshot_as_file("F:/WorkSpace/python/JSFW/AnswerQuestion.png")
+        Mytool.getScreen(dr)
         deadTime=Mytool.findXpath(dr,"//*[@id='re_question']/tbody/tr[1]/td[4]").text
         expName=Mytool.findXpath(dr,"//*[@id='re_question']/tbody/tr[1]/td[5]").text
         cost=Mytool.findXpath(dr,"//*[@id='re_question']/tbody/tr[1]/td[6]").text
         state=Mytool.findXpath(dr,"//*[@id='re_question']/tbody/tr[1]/td[8]").text
-        Mytool.findClass(dr,"look_btn").send_keys(Keys.ENTER)
-        
+
         Mytool.setDict("deadTime",deadTime)
         Mytool.setDict("expName",expName)
         Mytool.setDict("cost",cost)
         # Mytool.setDict("expName",expName)
         Mytool.setDict("state",state)
 
+        btnList=Mytool.findClass(dr,"btn")
+        for i in range(len(btnList)):
+            if  Op==btnList[i].get_attribute('value'):
+                btnList[i].send_keys(Keys.ENTER)
+                break
+        if Mytool.findClass(dr,'s_ok'):
+            Mytool.findClass(dr,'s_ok').click()
 
+
+    def add_Question(self,text):
+        dr=self.driver
+        Mytool.findId(dr,'pro_re_det').send_keys(text)
+        btL=Mytool.findClasses(dr,'btn')
+        for i in range(len(btl)):
+            if Op==btL[i].get_attribute('value'):
+                btL[i].send_keys(Keys.ENTER)
+                break
 #上传图片
     def upload_Pic(self,url):
         self.driver.find_element_by_id("uppicpath").click()

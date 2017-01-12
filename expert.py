@@ -15,11 +15,11 @@ class Expert:
         self.driver=driver
        # self.path='f:\\WorkSpace\\python\\excel\\new.csv'
         self.Err=[]
-        comdict={}
+        self.comdict={}
         self.baseurl=url
     
     def getDict(self):
-        return comdict
+        return self.comdict
 
     def getExpAccount(self):
         """获取专家账户总资金 可用资金 冻结资金 本月收入"""
@@ -30,10 +30,10 @@ class Expert:
         availableMoney=Mytool.findId(dr,"ky_money").text
         freezeMoney=Mytool.findId(dr,"dj_money").text
         monthMoney=Mytool.findId(dr,"mouth_account").text
-        comdict['totalAccount']=totalAccount
-        comdict['availableMoney']=availableMoney
-        comdict['freezeMoney']=freezeMoney
-        comdict['monthMoney']=monthMoney
+        self.comdict['totalAccount']=totalAccount
+        self.comdict['availableMoney']=availableMoney
+        self.comdict['freezeMoney']=freezeMoney
+        self.comdict['monthMoney']=monthMoney
 
     '''def Info(self):
         """专家信息"""  
@@ -77,7 +77,7 @@ class Expert:
         ActionChains(dr).move_to_element(ele).perform()
         time.sleep(1)
         Mytool.findId(dr,"pro_id",No)
-        comdict['questionNo']=No
+        self.comdict['questionNo']=No
         queryBt=Mytool.findClass(dr,"save_btn")
         resetBt=Mytool.findClass(dr,"return_btn")
         queryBt.send_keys(Keys.ENTER)
@@ -92,7 +92,7 @@ class Expert:
                 time.sleep(2)
                 break
 
-        dr.get_screenshot_as_file("screenshot\\MyQuestion.png")
+        
         # djmoney=Mytool.findId(dr,"djmoney").text
     
     def Reply(self,text,Op):
@@ -114,10 +114,16 @@ class Expert:
         btDict[Op].click()
         time.sleep(1)
         if Op=='reply' or Op=='refuse': 
-            comdict['replytime']=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            self.comdict['replytime']=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             Mytool.findClass(dr,'s_ok')
         elif Op=='up':
             pass
+    def endQuestion(self):
+        dr=self.driver
+        reasons=Mytool.findNames(dr,'end')
+        reasons[0].click()
+        btns=Mytool.findClasses(dr,'sc_btn_to')
+        btns[0].click()
 
     def returnDic(self):
         self.dict=Mytool.returnMydic()
