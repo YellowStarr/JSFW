@@ -15,14 +15,15 @@ class Expert:
         self.driver=driver
        # self.path='f:\\WorkSpace\\python\\excel\\new.csv'
         self.Err=[]
-        self.comdict={}
+        self.comdict={}#save all the message
         self.baseurl=url
     
     def getDict(self):
+        u'get the messages'
         return self.comdict
 
     def getExpAccount(self):
-        """获取专家账户总资金 可用资金 冻结资金 本月收入"""
+        u"""获取专家账户总资金 可用资金 冻结资金 本月收入"""
         dr=self.driver
         exp="/pages/exphome.do"
         expurl=self.baseurl+exp
@@ -65,7 +66,7 @@ class Expert:
         uname.send_keys("qiuwenjing")
         Mytool.getDict('saveBtn').click()
 
-    def myQuestion(self,No,btName):
+    def myQuestion(self,No,opName):
         """我的问题"""  
         #expect_url='http://192.168.11.181:8080/JSFW/problem/find_problem.do'
         dr=self.driver
@@ -87,15 +88,12 @@ class Expert:
         btnList=Mytool.findClasses(dr,'look_btn')
         for btn in range(len(btnList)):
             value=btnList[btn].get_attribute("value")
-            if value==btName:
+            if value==opName:
                 btnList[btn].send_keys(Keys.ENTER)
                 time.sleep(2)
                 break
 
-        
-        # djmoney=Mytool.findId(dr,"djmoney").text
-    
-    def Reply(self,text,Op):
+    def Reply(self,text,Op,newmoney=0):
         dr=self.driver
         replayText=Mytool.findId(dr,'pro_re_det')
         replayText.send_keys(text)
@@ -115,10 +113,15 @@ class Expert:
         time.sleep(1)
         if Op=='reply' or Op=='refuse': 
             self.comdict['replytime']=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            Mytool.findClass(dr,'s_ok')
-        elif Op=='up':
-            pass
+            time.sleep(1)
+            Mytool.findClass(dr,'s_ok').send_keys(Keys.ENTER)
+        elif Op=='up':      #加价回复
+            Mytool.findId(dr,'premium_money').send_keys(newmoney)
+            Mytool.findClass(dr,'save_btn').send_keys(Keys.ENTER)
+            time.sleep(2)
+            Mytool.getScreen(dr,"addMoney")
     def endQuestion(self):
+        u'''结束问题'''
         dr=self.driver
         reasons=Mytool.findNames(dr,'end')
         reasons[0].click()

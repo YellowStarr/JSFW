@@ -11,10 +11,13 @@ import os,sys
 
 
 class Person:
-    def __init__(self,driver):
+    def __init__(self,driver,url):
         self.driver=driver
        # self.path='f:\\WorkSpace\\python\\excel\\new.csv'
+        self.baseurl=url
         self.Err=[]
+        self.myQueDict={}
+        self.ansQList=[]
         dict=[]
         
     def Info(self):
@@ -42,21 +45,7 @@ class Person:
         limit=Mytool.findId(dr,"card_front_pg")
         saveBtn=Mytool.findCss(dr,u"input[value='保存']")
        
-        Mytool.setDict("userName",userName)
-        Mytool.setDict("realName",realName)
-        Mytool.setDict("sex",sex)
-        Mytool.setDict("email",email)
-        Mytool.setDict("tel_head",tel_head)
-        Mytool.setDict("tel_body",tel_body)
-        Mytool.setDict("qq",qq)
-        Mytool.setDict("work",work)
-        Mytool.setDict("industry",industry)
-        Mytool.setDict("product",product)
-        Mytool.setDict("addr",addr)
-        Mytool.setDict("card_no",card_no)
-        Mytool.setDict("limit",limit)
-        Mytool.setDict("saveBtn",saveBtn)
-    
+
     def setInfo(self):
         uname=Mytool.getDict('userName')
         uname.clear()
@@ -66,60 +55,88 @@ class Person:
     def MyQuestion(self,No):
         """我的问题"""  
         #expect_url='http://192.168.11.181:8080/JSFW/problem/find_problem.do'
+        url='/memquestion/question.do'
         dr=self.driver
-        Mytool.findLink(dr,u"我的问题").click()
+        dr.get(self.baseurl+url)
         time.sleep(2)
         Mytool.findId(dr,"question_code",No)
         queryBt=Mytool.findClass(dr,"save_btn")
         resetBt=Mytool.findClass(dr,"return_btn")
         queryBt.click()
         state=Mytool.findClass(dr," stall")
-        Mytool.setDict("state",state.text)
+        self.myQueDict["Qstate"]=state.text
         Mytool.findClass(dr,"look_btn").send_keys(Keys.ENTER)
-        dr.get_screenshot_as_file("F:/WorkSpace/python/JSFW/MyQuestion.png")
+        Mytool.getScreen(dr,"MyQuestion",No)
         djmoney=Mytool.findId(dr,"djmoney").text
-        Mytool.setDict("dj",djmoney)
+        self.myQueDict["dj"]=float(djmoney)
 
     def AnswerQuestion(self,No):
         u"""专家回复问题"""
         dr=self.driver
-        Mytool.findLink(dr,u"我的问题").click()
+        url='/exprequestion/exp_re_question.do'
+        dr.get(self.baseurl+url)
         time.sleep(2)
-        Mytool.findId(dr,"exp_re_question").click()
         Mytool.findId(dr,"pro_code",No)
         queryBt=Mytool.findClass(dr,"save_btn")
         resetBt=Mytool.findClass(dr,"return_btn")
         queryBt.send_keys(Keys.ENTER)
         time.sleep(2)
-        Mytool.getScreen(dr)
-        deadTime=Mytool.findXpath(dr,"//*[@id='re_question']/tbody/tr[1]/td[4]").text
-        expName=Mytool.findXpath(dr,"//*[@id='re_question']/tbody/tr[1]/td[5]").text
-        cost=Mytool.findXpath(dr,"//*[@id='re_question']/tbody/tr[1]/td[6]").text
-        state=Mytool.findXpath(dr,"//*[@id='re_question']/tbody/tr[1]/td[8]").text
+        Mytool.getScreen(dr,"expertAnswerQuestion",No)
+        rows=Mytool.findXpathes(dr,"//*[@id='re_question']/tbody/tr")
+        for i in range(1,len(rows)+1):
+            ansQ={}
+            deadTime=Mytool.findXpath(dr,"//*[@id='re_question']/tbody/tr["+str(i)+"]/td[4]").text
+            expName=Mytool.findXpath(dr,"//*[@id='re_question']/tbody/tr["+str(i)+"]/td[5]").text
+            cost=Mytool.findXpath(dr,"//*[@id='re_question']/tbody/tr["+str(i)+"]/td[6]").text
+            state=Mytool.findXpath(dr,"//*[@id='re_question']/tbody/tr["+str(i)+"]/td[8]").text
+            btnList=Mytool.findClasses(dr,"btn")
+            ansQ['deadTime']=deadTime
+            ansQ['expName']=expName
+            ansQ['cost']=float(cost)
+            ansQ['state']=state
+            ansQ['Op']=btnList
+            self.ansQList.append(ansQ)
 
-        Mytool.setDict("deadTime",deadTime)
-        Mytool.setDict("expName",expName)
-        Mytool.setDict("cost",cost)
-        # Mytool.setDict("expName",expName)
-        Mytool.setDict("state",state)
+    def add_Question(self,rows=0,text='add question'):
+         u'''追问操作'''
+         dr=self.driver
+         addDict=self.ansQList[rows]
+         btnList=addDict['Op']
+         for i in range(len(btnList)):
+             if  u'追问'==btnList[i].get_attribute('value'):
+                 btnList[i].send_keys(Keys.ENTER)
+                 time.sleep(2)
+                 break
+         Mytool.findId(dr,'pro_re_det').send_keys(text)
+         Mytool.findClass(dr,'save_btn').send_keys(Keys.ENTER)
+         time.sleep(1)
+         if Mytool.findClass(dr,'s_ok'):
+             Mytool.findClass(dr,'s_ok').send_keys(Keys.ENTER)
 
-        btnList=Mytool.findClass(dr,"btn")
-        for i in range(len(btnList)):
-            if  Op==btnList[i].get_attribute('value'):
-                btnList[i].send_keys(Keys.ENTER)
-                break
-        if Mytool.findClass(dr,'s_ok'):
-            Mytool.findClass(dr,'s_ok').click()
+    def make_Evalue(self,rows=0,level=4):
+         u'''评价'''
+         dr=self.driver
+         addDict=self.ansQList[rows]
+         btnList=addDict['op']
+         for i in range(len(btnList)):
+             if  u'评价'==btnList[i].get_attribute('value'):
+                 btnList[i].send_keys(Keys.ENTER)
+                 time.sleep(2)
+                 break
+         allStars=Mytool.findClasses(dr,'star')
+         allStars[level].click()
+         Mytool.findId(dr,'judge').send_keys(u'evaluation')
+         Mytool.findClass(dr,'save_btn').send_keys(Keys.ENTER)
+         if Mytool.findClass(dr,'s_ok'):
+             Mytool.findClass(dr,'s_ok').send_keys(Keys.ENTER)
 
-
-    def add_Question(self,text):
+    def user_Charge(self,no):
+        u'''收支明细'''
         dr=self.driver
-        Mytool.findId(dr,'pro_re_det').send_keys(text)
-        btL=Mytool.findClasses(dr,'btn')
-        for i in range(len(btl)):
-            if Op==btL[i].get_attribute('value'):
-                btL[i].send_keys(Keys.ENTER)
-                break
+        url="/pages/user_charge.do"
+        dr.get(self.baseurl+url)
+        Mytool.findId(dr,"questionNo").send_keys(no)
+        Mytool.findClass(dr,"save_btn").send_keys(Keys.ENTER)
 #上传图片
     def upload_Pic(self,url):
         self.driver.find_element_by_id("uppicpath").click()
@@ -132,8 +149,8 @@ class Person:
         self.driver.find_element_by_css_selector("div.ks-overlay-footer>div>button[datas='ok']").click()
         time.sleep(1)
 
-    def returnDic(self):
-        self.dict=Mytool.returnMydic()
-        print"the dict has:%s"%len(self.dict)
-        return self.dict
+    def getAnswerQList(self):
+        return self.ansQList
+    def getMyQuestionDict(self):
+        return self.myQueDict
 

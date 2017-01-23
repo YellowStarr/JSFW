@@ -27,10 +27,13 @@ def saveExc(path,dic,space=False):
   else:
     wb=xlwt.Workbook()
     table=wb.add_sheet(u"data1")
-  for k in dic:
-    table.write(row,0,k)
-    table.write(row,1,dic[k])
-    row=row+1
+  if type(dic)==dict:
+    for k in dic:
+      table.write(row,0,k)
+      table.write(row,1,dic[k])
+      row=row+1
+  else:
+    print "the dic must be dictionary"
   wb.save(path)
   print "rows:%s "%(row+1)
  
@@ -115,9 +118,13 @@ def findPartialLink(dri,para):
   ele=dri.find_element_by_partial_link_text(para)
   return ele
 
-def getScreen(driver,path='screenshot\\',format="%y%m%d-%H%M%S"):
+def getScreen(driver,filename='',no='',path='screenshot\\',format="%y%m%d-%H%M%S"):
   now=time.strftime(format,time.localtime(time.time()))
-  driver.get_screenshot_as_file(path+'%s.png'%now)
+  if no=='':
+    fname=filename+now
+  else:
+    fname=filename+no
+  driver.get_screenshot_as_file(path+'%s.png'%fname)
 
 def verify(driver,result,expect):
   if result==expect:

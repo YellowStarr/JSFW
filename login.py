@@ -15,6 +15,7 @@ class Login:
         self.driver=driver
        # self.path='f:\\WorkSpace\\python\\excel\\new.csv'
         self.righturl="http://192.168.11.181:8080/JSFW/pages/exphome.do"
+        self.name=''
     def Login(self,uname,pw):
         """登录"""
         dr=self.driver
@@ -23,15 +24,19 @@ class Login:
         time.sleep(3)
         Mytool.findClass(dr,"s_btn_logins").click()
         time.sleep(3)
-        '''if dr.current_url==self.righturl:
-            name=Mytool.findId(dr,"u_emp_name").get_attribute("value")
-            no=Mytool.findId(dr,"u_cust_co").get_attribute("value")
-            Mytool.setDict(no,name)
-            Mytool.findLink(dr,u"退出").click()
-        #Mytool.returnDict()'''
+        self.name=Mytool.findId(dr,"u_emp_name").get_attribute("value")
+
 #注册页面  Undone
     def Register(self):
         dr=self.driver
         Mytool.findClass(dr,'s_free').click()
         time.sleep(2)
         cur_url=dr.current_url
+
+    def Logout(self):
+        dr=self.driver
+        Mytool.findCss(dr,"a[href='/JSFW/home/unlogin.do'").click()
+        time.sleep(2)
+
+    def getName(self):
+        return self.name

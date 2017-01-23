@@ -17,8 +17,8 @@ class raiseQuestion:
        # self.path='f:\\WorkSpace\\python\\excel\\new.csv'
         self.Err=[]
         self.recordDic={}
-        self.List=[]
         self.expIdList=[]
+        self.List=[]
     def raiseQuestion(self):
         """提问题入口"""  
         expect_url='http://192.168.11.181:8080/JSFW/problem/find_problem.do'
@@ -81,11 +81,6 @@ class raiseQuestion:
     def getChoseExp(self):
         expInfo=self.List
         return expInfo
-
-    def printExp(self):
-        for ids in range(len(self.expIdList)):
-            self.List[ids]['expid']=self.expIdList[ids]
-            Mytool.saveExc('testcase.xls',self.List[ids])
 
     def getErr(self):
         if len(self.Err)!=0:
@@ -163,13 +158,14 @@ class raiseQuestion:
         u'''选中专家Tab'''
         dr=self.driver
         Mytool.findId(dr,"selected_exp").click()
-        nameList=Mytool.findXpathes(dr,"//*[@id='chioces_exp']/*/*/*/a[1]")
-        print"nameList length:%s"%len(nameList)  
+        Mytool.getScreen(dr,"selected_exp")
+        nameList=Mytool.findXpathes(dr,"//*[@id='chioces_exp']/*/td[2]/p[1]/span/a")
         chargeList=Mytool.findXpathes(dr,"//input[@class='moneyValue']")
-        for i in range(len(nameList)):
+        for i in range(len(self.expIdList)):
             choseExpDic={}
             choseExpDic['name']=nameList[i].text
             choseExpDic['charge']=chargeList[i].get_attribute('value')
+            choseExpDic['expid']=self.expIdList[i]
             self.List.append(choseExpDic)
         
 
@@ -209,9 +205,9 @@ class raiseQuestion:
         expFee=Mytool.findId(dr,'payment_money').text
         commission=Mytool.findId(dr,'payment_yj').text
         totalCost=Mytool.findId(dr,'xf_money').text
-        self.recordDic['expFee']=expFee
-        self.recordDic['commission']=commission
-        self.recordDic['totalCost']=totalCost
+        self.recordDic['expFee']=float(expFee)
+        self.recordDic['commission']=float(commission)
+        self.recordDic['totalCost']=float(totalCost)
         self.recordDic['recordTime']=recordTime
         self.recordDic['reply_time']=ti
 
@@ -251,9 +247,9 @@ class raiseQuestion:
         url='/pages/member_center.do'
         dr.get(self.base_url+url)
         time.sleep(2)
-        totalAccount=Mytool.findId(dr,'sum').text.lstrip('￥')
-        availableAccount=Mytool.findId(dr,'avlb').text.lstrip('￥')
-        freezeAccount=Mytool.findId(dr,'frz').text.lstrip('￥')
+        totalAccount=float(Mytool.findId(dr,'sum').text.lstrip('￥'))
+        availableAccount=float(Mytool.findId(dr,'avlb').text.lstrip('￥'))
+        freezeAccount=float(Mytool.findId(dr,'frz').text.lstrip('￥'))
         accoutnDic={'total':totalAccount,
                     'avail':availableAccount,
                     'freeze':freezeAccount}
