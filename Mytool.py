@@ -64,7 +64,7 @@ def getDict(key):
 def returnMydic():
   return myDict
 
-def printDict():
+def printDict(myDict):
   if myDict:
     for k in myDict:
       print "key: %s"%k
@@ -143,12 +143,13 @@ def downList(driver,id,css,j):
   trade_name=goodname_list[j].text
   return trade_name
 
-def selectList(driver,id,xpath):
+def selectList(driver,id,sel):
   """Traditional select list"""
   selectL=findId(driver,id)
-  print id
-  print selectL
-  selectL.find_element_by_xpath(xpath).click()
+  lists=findCsses(driver,"#%s option"%id)
+  for i in range(len(lists)):
+    if lists[i].get_attribute("value")==sel:
+      lists[i].click()
 
 def scroll(driver,ypoint):
   driver.execute_script("document.documentElement.scrollTop=arguments[0]",ypoint)

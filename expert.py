@@ -17,10 +17,15 @@ class Expert:
         self.Err=[]
         self.comdict={}#save all the message
         self.baseurl=url
+        self.expInfoDic={}
     
-    def getDict(self):
+    def getcomDict(self):
         u'get the messages'
         return self.comdict
+
+    def getexpInfoDict(self):
+        u'get the messages'
+        return self.expInfoDic
 
     def getExpAccount(self):
         u"""获取专家账户总资金 可用资金 冻结资金 本月收入"""
@@ -36,35 +41,106 @@ class Expert:
         self.comdict['freezeMoney']=freezeMoney
         self.comdict['monthMoney']=monthMoney
 
-    '''def Info(self):
+    def Info(self):
         """专家信息"""  
         #expect_url='http://192.168.11.181:8080/JSFW/problem/find_problem.do'
         dr=self.driver
-        Mytool.findLink(dr,u"我的问题").click()
-        time.sleep(2)
-        Mytool.findId(dr,"myInfo").click()
-        Mytool.findId(dr,"user_inf").click()
-        #allInput=Mytool.findCsses(dr,"input")
+        url='/JSFW/expmsg/expert_info.do?view=expert_info'
+        dr.get(self.baseurl+url)
+        time.sleep(3)
         userName=Mytool.findId(dr,"emp_acct")
         realName=Mytool.findId(dr,"user_realname")
-        #userAccount
-        sex=Mytool.findClass(dr,"s_checked02")
+        ename=Mytool.findId(dr,'user_ename')
+        sex=Mytool.findCsses(dr,".radio_p")
+        birthday=Mytool.findId(dr,"brithday")
         email=Mytool.findId(dr,"user_email")
-        tel_head=Mytool.findId(dr,"user_telephone_head")
-        tel_body=Mytool.findId(dr,"user_telephone_body")
-        qq=Mytool.findId(dr,"user_qq")
-        work=Mytool.findId(dr,"user_comwork")
-        industry=Mytool.findId(dr,"user_industry")
-        product=Mytool.findId(dr,"com_product")
-        addr=Mytool.findId(dr,"detail_add")
-        card_no=Mytool.findId(dr,"card_no")
-        limit=Mytool.findId(dr,"card_front_pg")
-        saveBtn=Mytool.findCss(dr,u"input[value='保存']")'''
-    def setInfo(self):
-        uname=Mytool.getDict('userName')
-        uname.clear()
-        uname.send_keys("qiuwenjing")
-        Mytool.getDict('saveBtn').click()
+        quhao=Mytool.findId(dr,"quhao")
+        user_telephone=Mytool.findId(dr,"user_telephone")
+        # homePh=quhao+user_telephone
+        # pro=dr.execute_script("document.getElementById('province').value")
+        # city=dr.execute_script("document.getElementById('city').value")
+        # country=dr.execute_script("document.getElementById('county').value")
+        detail_addr=Mytool.findId(dr,"detail_add")
+        # complete_addr=pro+city+country+detail_addr
+        Mytool.scroll(dr,800)
+        graduate_sch=Mytool.findId(dr,"exp_graduate_school")
+        degree=Mytool.findId(dr,"data_s8")
+        company=Mytool.findId(dr,"user_comwork")
+        professional=Mytool.findId(dr,"exp_js_title")
+        comPhone=Mytool.findId(dr,"exp_comphone")
+        duty=Mytool.findId(dr,"exp_compost")
+        fax=Mytool.findId(dr,"user_fax")
+        zipcode=Mytool.findId(dr,"user_zipcode")
+        exp_tpyes=Mytool.findCsses(dr,"input[type='checkbox']")
+        # exp_typeL=[]
+        # if len(exp_tpyes)>0:
+        #     for i in exp_tpyes:
+        #         if exp_tpyes[i].get_attribute("checked"):
+        #             exp_typeL.append(exp_tpyes[i].text)
+        # else:
+        #     exp_typeL.append(Mytool.findId(dr,"qt_exp"))
+        remark=Mytool.findId(dr,"s19")
+        self.expInfoDic={'userName':userName,
+                         'realName':realName,
+                         'ename':ename,
+                         'sex':sex,
+                         'birthday':birthday,
+                         'email':email,
+                         'quhao':quhao,
+                         'user_telephone':user_telephone,
+                         'graduate_sch':graduate_sch,
+                         'degree':degree,
+                         'company':company,
+                         'professional':professional,
+                         'comPhone':comPhone,
+                         'duty':duty,
+                         'fax':fax,
+                         'zipcode':zipcode,
+                         'exp_type':exp_tpyes,
+                         'remark':remark,
+        }
+
+
+    def setInfo(self,infoDic):
+        dr=self.driver
+        self.Info()
+        self.expInfoDic['realName']=infoDic['realName']
+        self.expInfoDic['ename']=infoDic['ename']
+        self.expInfoDic['sex'][infoDic['sex']].click()
+        Mytool.selectList(dr,"years",infoDic['year'])
+        Mytool.selectList(dr,"months",infoDic['month'])
+        Mytool.selectList(dr,"days",infoDic['day'])
+        self.expInfoDic['realName']=infoDic['realName']
+        # self.expInfoDic['realName']=infoDic['realName']
+        # saveBtn=Mytool.findCss(dr,u"input[value='保存']")
+    def eduHis(self):
+        dr=self.driver
+        hisList=Mytool.findCsses(dr,"#edu_tbody tr")
+        return hisList
+    def addEdu(self,fr,to,scName,major='',remark=''):
+        dr=self.driver
+        Mytool.findCss(dr,"a[onclick='addEdu(false)']").click()
+        Mytool.findId(dr,"edu_begin").send_keys(fr)
+        Mytool.findId(dr,"edu_end").send_keys(to)
+        Mytool.findId(dr,"edu_schoolname").send_keys(scName)
+        Mytool.findId(dr,"edu_major").send_keys(major)
+        Mytool.findId(dr,"edu_remarks").send_keys(remark)
+        Mytool.findCss(dr,"span[onclick='addEduExp()']").send_keys(Keys.ENTER)
+
+    def workHis(self):
+        dr=self.driver
+        hisList=Mytool.findCsses(dr,"#work_tbody tr")
+        return hisList
+    def addWork(self,fr,to,comName,title,remark=''):
+        dr=self.driver
+        Mytool.findCss(dr,"a[onclick='addWork(false)']").click()
+        Mytool.findId(dr,"work_begin").send_keys(fr)
+        Mytool.findId(dr,"work_end").send_keys(to)
+        Mytool.findId(dr,"work_workunit").send_keys(comName)
+        Mytool.findId(dr,"work_duty").send_keys(title)
+        Mytool.findId(dr,"work_remarks").send_keys(remark)
+        Mytool.findCss(dr,"span[onclick='addWorkExp()']").send_keys(Keys.ENTER)
+
 
     def myQuestion(self,No,opName):
         """我的问题"""  
