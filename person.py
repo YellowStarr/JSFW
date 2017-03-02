@@ -133,7 +133,7 @@ class Person:
     def user_Charge(self,no):
         u'''收支明细'''
         dr=self.driver
-        url="/pages/user_charge.do"
+        url="/JSFW/pages/user_charge.do"
         dr.get(self.baseurl+url)
         Mytool.findId(dr,"questionNo").send_keys(no)
         Mytool.findClass(dr,"save_btn").send_keys(Keys.ENTER)

@@ -19,31 +19,36 @@ class raiseQuestion:
         self.recordDic={}
         self.expIdList=[]
         self.List=[]
-    def raiseQuestion(self):
+    def raiseQuestion(self,word,detail):
         """提问题入口"""  
-        expect_url='http://192.168.11.181:8080/JSFW/problem/find_problem.do'
+        expect_url='http://192.168.11.181:8080/JSFW/findexps/giveQuestions.do'
         dr=self.driver
-        Mytool.findClass(dr,"sc-matter").click()
+        dr.get(expect_url)
         time.sleep(2)
-        cur_url=dr.current_url
-        # assert expect_url==cur_url,"url wrong"
-       # Mytool.findClass(dr,"s_btn_logins").click()
-        dr.implicitly_wait(10)
-        self.questionDetail("2")
-        self.stepOp(2)#下一步
-        self.expertChoose(2)
-        self.stepOp(2)
+        Mytool.findCss(dr,"li[onclick='changeTab3()']").click()
+        time.sleep(2)
+        input=Mytool.findCss(dr,"input[type='text']")
+        input.send_keys(word)
+        Mytool.findCss(dr,"#cacheIndDate>span").click()
+        time.sleep(1)
+        Mytool.scroll(dr,800)
+        self.stepOp("next()")#下一步
+        self.questionDetail(detail)
+        self.stepOp("next()")
+        time.sleep(3)
+        self.expertChoose(5)
+        self.stepOp("next()")
         self.payPage()
 
     def findExpert(self,detail,expnum,questionType=1,answer=1,date=0):
         """找专家入口流程"""  
-        exp_url='/findexps/giveQuestions.do'
+        exp_url='/JSFW/findexps/giveQuestions.do'
         dr=self.driver
         dr.get(self.base_url+exp_url)
         time.sleep(2)
         cur_url=dr.current_url
         # assert expect_url==cur_url,"url wrong"
-        if questionType==2:
+        if questionType==2 or questionType=='2':
             quesTypes=Mytool.findClasses(dr,'sc-check-box02')
             # print quesTypes[1].get_attribute('value')
             quesTypes[1].click()
@@ -103,23 +108,17 @@ class raiseQuestion:
         del stepList
        
  
-    def questionDetail(self,i="1",k=1):
+    def questionDetail(self,detail,i="1",k=1):
         """问题描述 when i==1, means the question type is 技术咨询,i==2 means the question type is 项目评价.And
         when i==2,k means how many types of evaluation needs to be done"""
         dr=self.driver
-        Mytool.findLink(dr,u"电子信息").click()
-        Mytool.findLink(dr,u"云计算").click()
-        Mytool.findClass(dr,"lastStep").click()
-        if u"电子信息-软件-云计算" !=Mytool.findId(dr,"you_choice").text:
-            str="you_choice_not_equal"
-            self.Err.append(str)
+        Mytool.findId(dr,'pro_detail',detail)#问题描述
         if i=="2":
             pro_typeid="//option[@value="+i+"]"
             Mytool.selectList(dr,"pro_typeid",pro_typeid)
             reqList=Mytool.findCsses(dr,"input[type='checkbox']")
             for j in range(0,k):
                 reqList[j].click()
-        Mytool.findId(dr,'pro_detail',u'计算')
 
     def Query(self,uname):
         dr=self.driver
@@ -135,6 +134,8 @@ class raiseQuestion:
         dr=self.driver
         expList=Mytool.findClasses(dr,'sc-a')          #存放页面“选择”的链接列表
         print "length of expList:"+str(len(expList))
+        if isinstance(num,float) or isinstance(num,str):
+            num=int(num)
         if isinstance(num,int):
             if num>=1 and num<=len(expList):
                 for i in range(0,num):
@@ -226,7 +227,7 @@ class raiseQuestion:
     def getQuestionNo(self):
         dr=self.driver
         cur_url=dr.current_url
-        exp_url=self.base_url+'/memquestion/question.do'
+        exp_url=self.base_url+'/JSFW/memquestion/question.do'
         if cur_url!=exp_url:
             dr.get(exp_url)
             time.sleep(1)
@@ -244,7 +245,7 @@ class raiseQuestion:
     def getAccount(self):
         u'''获取会员的账户情况'''
         dr=self.driver
-        url='/pages/member_center.do'
+        url='/JSFW/pages/member_center.do'
         dr.get(self.base_url+url)
         time.sleep(2)
         totalAccount=float(Mytool.findId(dr,'sum').text.lstrip('￥'))
@@ -257,7 +258,7 @@ class raiseQuestion:
 
     def detailOfInAndOut(self,filename):
         dr=self.driver
-        url='/pages/user_charge.do'
+        url='/JSFW/pages/user_charge.do'
         dr.get(self.base_url+url)
         time.sleep(2)
         dr.get_screenshot_as_file(filename)

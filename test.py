@@ -1,12 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import pdb
+# import pdb
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import Select
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import NoAlertPresentException
 import unittest, time, re
@@ -25,34 +21,28 @@ class test(unittest.TestCase):
         self.driver = webdriver.Chrome()
         self.driver.implicitly_wait(30)
         #self.base_url = "http://218.249.25.106:15301/JSFW"
-        self.base_url = "http://192.168.11.181:8080/JSFW"
+        # self.base_url = "http://218.249.25.106:15311"
+        self.base_url = "http://192.168.11.181:8080"
         self.verificationErrors = []
         self.accept_next_alert = True
         #self.f=open("f:/workspace/python/data.txt","w")
         self.driver.maximize_window()
     def Question_Passby(self):
         u"""技术服务找专家测试推送测试"""
-        initDict={
-            'uname':'qiuwjcom4',
-            'pwd':888888,
-            'detail':u'资金验证-推送-资金测试',
-            'choseExp':3,
-            'questionType':1,
-            'answerNum':1,
-            'lastDay':0,
-        }
+        path='F:\\WorkSpace\\python\\JSFW\\testcase\\testcase.xls'
+        Mytool.readExec(path)
+        initDict=Mytool.returnMydic()
         driver = self.driver
         driver.delete_all_cookies()
         driver.get(self.base_url + "/home/unlogin.do")
-        li=Login(driver)
+        li=Login(driver,self.base_url)
         li.Login(initDict['uname'],initDict['pwd'])  
         time.sleep(3) 
         RQ=raiseQuestion(driver,self.base_url)
         initAccount=RQ.getAccount()
         Mytool.getScreen(driver,"initAccount")
-        RQ.findExpert(initDict['detail'],initDict['choseExp'],initDict['questionType'],initDict['answerNum'],initDict['lastDay'])
-        explist=RQ.getChoseExp()
-        # print len(explist)
+        RQ.raiseQuestion(u'基础软件',initDict['detail'])
+        # RQ.findExpert(initDict['detail'],initDict['choseExp'],initDict['questionType'],initDict['answerNum'],initDict['lastDay'])
         dic=RQ.returnDic()
         secAccount=RQ.getAccount()
         Mytool.getScreen(driver,"secAccount")
@@ -71,9 +61,9 @@ class test(unittest.TestCase):
         HY.user_Charge(no)
         time.sleep(2)
         Mytool.getScreen(driver,"userCharge")
-        Mytool.saveExc('testcase.xls',initAccount,True)
-        Mytool.saveExc('testcase.xls',initDict['uname'])
-        Mytool.saveExc('testcase.xls',dic)
+        Mytool.saveExc('F:\\WorkSpace\\python\\JSFW\\testcase\\output.xls',initAccount,True)
+        # Mytool.saveExc('F:\\WorkSpace\\python\\JSFW\\testcase\\output.xls',initDict['uname'])
+        Mytool.saveExc('F:\\WorkSpace\\python\\JSFW\\testcase\\output.xls',dic)
         # RQ.printExp()
 
     def ExpertReply(self):
@@ -119,8 +109,8 @@ class test(unittest.TestCase):
         time.sleep(2)
         Mytool.getScreen(driver,"userCharge")
         li.Logout()
-        Mytool.saveExc('testcase.xls',initAccount,True)
-        Mytool.saveExc('testcase.xls',dic)
+        Mytool.saveExc('F:\\WorkSpace\\python\\JSFW\\testcase\\output.xls',initAccount,True)
+        Mytool.saveExc('F:\\WorkSpace\\python\\JSFW\\testcase\\output.xls',dic)
         expList=[]
         for i in range(len(expid)):
              expList.append(expid[i]["expid"])
@@ -138,7 +128,7 @@ class test(unittest.TestCase):
             if expList[i]=="15":
                 Exp.myQuestion(no,u'结束问题')
                 Exp.endQuestion()
-            Mytool.saveExc('money.xls',account,True)
+            Mytool.saveExc('F:\\WorkSpace\\python\\JSFW\\testcase\\money.xls',account,True)
 
 
         li.Login(initDict['uname'],initDict['pwd'])
@@ -192,6 +182,56 @@ class test(unittest.TestCase):
         except AssertionError as e: 
             self.verificationErrors.append(str(e))
         
+    def checkExpInfo(self):
+        dataInit={
+            'username':'chenglong',
+            'pwd':888888,
+        }
+        driver = self.driver
+        expInfoDic={
+            'userName':'chenglong',
+            'realName':u'程龙',
+            'ename':u'LongCheng',
+            'sex':0,
+            'year':'1990',
+            'month':'9',
+            'day':'11'
+            # 'email':email,
+            # 'quhao':quhao,
+            # 'user_telephone':user_telephone,
+            # 'graduate_sch':graduate_sch,
+            # 'degree':degree,
+            # 'company':company,
+            # 'professional':professional,
+            # 'comPhone':comPhone,
+            # 'duty':duty,
+            # 'fax':fax,
+            # 'zipcode':zipcode,
+            # 'exp_type':exp_tpyes,
+            # 'remark':remark,
+        }
+        driver.delete_all_cookies()
+        driver.get(self.base_url + "/home/unlogin.do")
+        li=Login(driver,self.base_url )
+        li.Login(dataInit['username'],dataInit['pwd'])
+        time.sleep(3)
+        expInfo=Expert(driver,self.base_url)
+        expInfo.getInfo()
+
+        # try:self.assertIn(u"中文格式错误",Mytool.findId(driver,"user_realname_error").text)
+        # except AssertionError as e: self.verificationErrors.append(str(e))
+        #
+        # try:self.assertIn(u"英文格式错误",Mytool.findId(driver,"user_ename_error").text)
+        # except AssertionError as e: self.verificationErrors.append(str(e))
+
+    def readExcel(self):
+        path='F:\\WorkSpace\\python\\JSFW\\testcase\\testcase.xls'
+        Mytool.clearMydic()
+        Mytool.readExec(path)
+        initDict=Mytool.returnMydic()
+        Mytool.printDict(initDict)
+        lg=Login(self.driver,self.base_url)
+        lg.Login("anxuejun",888888)
 
 
     def is_element_present(self, how, what):
@@ -215,17 +255,20 @@ class test(unittest.TestCase):
             return alert_text
         finally: self.accept_next_alert = True
 
+
     def tearDown(self):
-        self.driver.quit()
+        # self.driver.quit()
         self.assertEqual([], self.verificationErrors)
             
 if __name__ == "__main__":
     testunit=unittest.TestSuite()
-    # testunit.addTest(test("test_DeadTime"))
+    testunit.addTest(test("Question_Passby"))
     #testunit.addTest(test("test_PersonCenter"))
     # testunit.addTest(test("Exp"))
     # testunit.addTest(test("ExpertReply"))
-    testunit.addTest(test("addQuestion"))
+    # testunit.addTest(test("checkExpInfo"))
+    # testunit.addTest(test("readExcel"))
+    # testunit.addTest(test("ExpertReply"))
     # testunit.addTest(test("ExpertReply"))
     #  filename="f:\\WorkSpace\\python\\JSFW\\repoter.html"
     # fp=file(filename,'wb')

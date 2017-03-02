@@ -100,23 +100,49 @@ class Expert:
                          'remark':remark,
         }
 
-
     def setInfo(self,infoDic):
         dr=self.driver
         self.Info()
-        self.expInfoDic['realName']=infoDic['realName']
-        self.expInfoDic['ename']=infoDic['ename']
+        self.expInfoDic['realName'].send_keys(infoDic['realName'])
+        self.expInfoDic['ename'].send_keys(infoDic['ename'])
         self.expInfoDic['sex'][infoDic['sex']].click()
         Mytool.selectList(dr,"years",infoDic['year'])
         Mytool.selectList(dr,"months",infoDic['month'])
         Mytool.selectList(dr,"days",infoDic['day'])
         self.expInfoDic['realName']=infoDic['realName']
         # self.expInfoDic['realName']=infoDic['realName']
-        # saveBtn=Mytool.findCss(dr,u"input[value='保存']")
+        saveBtn=Mytool.findCss(dr,u"button[onclick='save()']")
+        saveBtn.click()
+
+    def getInfo(self):
+        dr=self.driver
+        getInfoL=[]
+        url='/JSFW/expmsg/expert_info.do?view=expert_info'
+        dr.get(self.baseurl+url)
+        time.sleep(3)
+        expInfoList=['emp_acct','user_realname','user_ename','brithday','user_email','province','city','county','quhao','user_telephone','detail_add',
+                     'exp_js_title','data_s8','user_comwork','exp_compost','user_fax','user_zipcode','s19']
+        for i in range(len(expInfoList)):
+            val=dr.execute_script("return document.getElementById(arguments[0]).value",expInfoList[i])
+            if val=='':
+                val="null"
+            getInfoL.append(val)
+        sex=Mytool.findCss(dr,".radio_p[checked]").get_attribute('value')
+        getInfoL.append(sex)
+        expType=Mytool.findCsses(dr,"input[type='checkbox']")
+        for j in range(len(expType)):
+            if expType[j].get_attribute('checked'):
+                tp=expType[j].get_attribute('id')
+                getInfoL.append(tp)
+        return getInfoL
+
     def eduHis(self):
         dr=self.driver
         hisList=Mytool.findCsses(dr,"#edu_tbody tr")
-        return hisList
+        if len(hisList):
+            return hisList
+        else:
+            return False
     def addEdu(self,fr,to,scName,major='',remark=''):
         dr=self.driver
         Mytool.findCss(dr,"a[onclick='addEdu(false)']").click()

@@ -11,14 +11,15 @@ import os,sys
 
 
 class Login:
-    def __init__(self,driver):
+    def __init__(self,driver,url):
         self.driver=driver
        # self.path='f:\\WorkSpace\\python\\excel\\new.csv'
-        self.righturl="http://192.168.11.181:8080/JSFW/pages/exphome.do"
+        self.baseurl=url
         self.name=''
     def Login(self,uname,pw):
         """登录"""
         dr=self.driver
+        dr.get(self.baseurl+'/JSFW/user/login.do')
         Mytool.findId(dr,"username",uname)
         Mytool.findId(dr,"password",pw)
         time.sleep(3)
