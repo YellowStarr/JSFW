@@ -202,7 +202,7 @@ class Login_Test(unittest.TestCase):
         user=login.Login(dr,self.base_url)
         udict=user.userRegister()
         udict["account"].send_keys("a18782943855")
-        udict["mobile"].send_keys('QWEEEEEE')
+        udict["mobile"].send_keys('QWEEEEE')
         udict["pwd"].send_keys('888888')
         udict["pwd1"].send_keys('888888')
         udict["yzm"].send_keys("")
