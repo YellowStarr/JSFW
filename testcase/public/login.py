@@ -22,6 +22,7 @@ class Login:
         dr.get(self.baseurl+'/JSFW/user/login.do')
         Mytool.findId(dr,"username",uname)
         Mytool.findId(dr,"password",pw)
+        Mytool.findId(dr,"verifycode").send_keys(11)
         time.sleep(3)
         Mytool.findClass(dr,"s_btn_logins").click()
         time.sleep(3)
