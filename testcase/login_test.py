@@ -17,7 +17,7 @@ class Login_Test(unittest.TestCase):
         reload(sys)
         sys.setdefaultencoding('utf-8')
         # self.driver = webdriver.Firefox()
-        self.driver = webdriver.Chrome()
+        self.driver = webdriver.Chrome(executable_path="C:\Program Files (x86)\Google\Chrome\Application\chromedriver.exe")
         self.driver.implicitly_wait(30)
         #self.base_url = "http://218.249.25.106:15301/JSFW"
         # self.base_url = "http://218.249.15.107"
