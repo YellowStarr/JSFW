@@ -5,10 +5,11 @@ sys.path.append("testcase")
 from testcase import *
 import HTMLTestRunner
 
-import login_test
+import login_test,subject_test
 
 caseNames=[
-    login_test.Login_Test
+    # login_test.Login_Test,
+    subject_test.Subject_Test
 ]
 
 testunit=unittest.TestSuite()
