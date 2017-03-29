@@ -20,7 +20,7 @@ class Expert:
         self.expInfoDic={}
     
     def getcomDict(self):
-        u'get the messages'
+        '''get the messages'''
         return self.comdict
 
     def getexpInfoDict(self):
@@ -114,7 +114,7 @@ class Expert:
         saveBtn=Mytool.findCss(dr,u"button[onclick='save()']")
         saveBtn.click()
 
-    def getInfo(self):
+    '''def getInfo(self):
         dr=self.driver
         getInfoL=[]
         url='/JSFW/expmsg/expert_info.do?view=expert_info'
@@ -134,59 +134,33 @@ class Expert:
             if expType[j].get_attribute('checked'):
                 tp=expType[j].get_attribute('id')
                 getInfoL.append(tp)
-        return getInfoL
+        return getInfoL'''
 
-    def eduHis(self):
+    def queryQuestion(self,No):
+        u"""专家问题中心，根据问题No 查询问题，返回问题状态"""
         dr=self.driver
-        hisList=Mytool.findCsses(dr,"#edu_tbody tr")
-        if len(hisList):
-            return hisList
-        else:
-            return False
-    def addEdu(self,fr,to,scName,major='',remark=''):
-        dr=self.driver
-        Mytool.findCss(dr,"a[onclick='addEdu(false)']").click()
-        Mytool.findId(dr,"edu_begin").send_keys(fr)
-        Mytool.findId(dr,"edu_end").send_keys(to)
-        Mytool.findId(dr,"edu_schoolname").send_keys(scName)
-        Mytool.findId(dr,"edu_major").send_keys(major)
-        Mytool.findId(dr,"edu_remarks").send_keys(remark)
-        Mytool.findCss(dr,"span[onclick='addEduExp()']").send_keys(Keys.ENTER)
-
-    def workHis(self):
-        dr=self.driver
-        hisList=Mytool.findCsses(dr,"#work_tbody tr")
-        return hisList
-    def addWork(self,fr,to,comName,title,remark=''):
-        dr=self.driver
-        Mytool.findCss(dr,"a[onclick='addWork(false)']").click()
-        Mytool.findId(dr,"work_begin").send_keys(fr)
-        Mytool.findId(dr,"work_end").send_keys(to)
-        Mytool.findId(dr,"work_workunit").send_keys(comName)
-        Mytool.findId(dr,"work_duty").send_keys(title)
-        Mytool.findId(dr,"work_remarks").send_keys(remark)
-        Mytool.findCss(dr,"span[onclick='addWorkExp()']").send_keys(Keys.ENTER)
-
-
-    def myQuestion(self,No,opName):
-        """我的问题"""  
-        #expect_url='http://192.168.11.181:8080/JSFW/problem/find_problem.do'
-        dr=self.driver
-        exp="/pages/expert_question.do?view=expert_question"
-        dr.get(self.baseurl+exp)
-        # Mytool.findId(dr,"expert_question").click()
-        time.sleep(2)
         ele=Mytool.findClass(dr,'my_question')
-        ActionChains(dr).move_to_element(ele).perform()
+        # ActionChains(dr).move_to_element(ele).perform()
+        ele.find_element_by_tag_name("span").click()
         time.sleep(1)
         Mytool.findId(dr,"pro_id",No)
         self.comdict['questionNo']=No
         queryBt=Mytool.findClass(dr,"save_btn")
         resetBt=Mytool.findClass(dr,"return_btn")
         queryBt.send_keys(Keys.ENTER)
-
         state=Mytool.findXpath(dr,"//*[@id='expcenter_data']/tbody/tr/td[8]")
         stateV=state.get_attribute("title")
+        return stateV
+
+    def myQuestion(self,No,opName):
+        """我的问题,必填参数问题编号和操作名称，查看、回复、无法回答、结束问题"""
+        #expect_url='http://192.168.11.181:8080/JSFW/problem/find_problem.do'
+        dr=self.driver
+        exp="/JSFW/pages/expert_question.do?view=expert_question"
+        dr.get(self.baseurl+exp)
+        # Mytool.findId(dr,"expert_question").click()
+        time.sleep(2)
+        self.queryQuestion(No)
         btnList=Mytool.findClasses(dr,'look_btn')
         for btn in range(len(btnList)):
             value=btnList[btn].get_attribute("value")
@@ -194,7 +168,7 @@ class Expert:
                 btnList[btn].send_keys(Keys.ENTER)
                 time.sleep(2)
                 break
-
+    #回复问题，输入参数是回复内容，op是回复reply或拒绝refuse，或者加价up,加价时，需要输入新的价格
     def Reply(self,text,Op,newmoney=0):
         dr=self.driver
         replayText=Mytool.findId(dr,'pro_re_det')
@@ -216,7 +190,8 @@ class Expert:
         if Op=='reply' or Op=='refuse': 
             self.comdict['replytime']=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             time.sleep(1)
-            Mytool.findClass(dr,'s_ok').send_keys(Keys.ENTER)
+
+            Mytool.findCss(dr,'#add_ti .s_ok').send_keys(Keys.ENTER)
         elif Op=='up':      #加价回复
             Mytool.findId(dr,'premium_money').send_keys(newmoney)
             Mytool.findClass(dr,'save_btn').send_keys(Keys.ENTER)

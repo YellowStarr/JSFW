@@ -5,18 +5,19 @@ sys.path.append("testcase")
 from testcase import *
 import HTMLTestRunner
 
-import login_test,subject_test
+import login_test,subject_test,expert_text
 
 caseNames=[
     # login_test.Login_Test,
-    subject_test.Subject_Test
+    # subject_test.Subject_Test,
+    expert_text.Expert_Test
 ]
 
 testunit=unittest.TestSuite()
 for i in range(0,len(caseNames)):
     testunit.addTest(unittest.makeSuite(caseNames[i]))
 
-nowtime=time.strftime("%Y-%m-%M-%H_%M_%S",time.localtime(time.time()))
+nowtime=time.strftime("%Y-%m-%d@%H_%M_%S",time.localtime(time.time()))
 filename='reporter\\'+nowtime+"reporter.html"
 fp=file(filename,'wb')
 runner=HTMLTestRunner.HTMLTestRunner(stream=fp,title='testcase-logintest',description='desc')
